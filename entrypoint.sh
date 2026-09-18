@@ -53,14 +53,21 @@ sed -i -E -e 's#(hostname[[:space:]]+)"[^"]*"#\1"'"$HOSTNAME"'"#' \
           -e 's#(sv_password[[:space:]]+)"[^"]*"#\1"'"$PASSWORD"'"#' \
           -e 's#(sv_downloadurl[[:space:]]+)"[^"]*"#\1"'"$FASTDL"'"#' \
     "$HOME/csgo/cfg/$SERVERCFG"
+
+mkdir -p "$HOME/csgo/addons/sourcemod/configs"
 sed -i -E 's#("MinidumpAccount"[[:space:]]+)"[^"]*"#\1"'"$MINIDUMPACCOUNT"'"#' \
     "$HOME/csgo/addons/sourcemod/configs/core.cfg"
+
+mkdir -p "$HOME/csgo/cfg/sourcemod/gokz"
 sed -i -E 's#("gokz_replays_download_url"[[:space:]]+)"[^"]*"#\1"'"$REPLAYURL"'"#' \
     "$HOME/csgo/cfg/sourcemod/gokz/gokz-replays.cfg"
 sed -i -E -e 's#(sm_dlmap_url[[:space:]]+)"[^"]*"#\1"'"$DLMAP"'"#' \
           -e 's#(sm_dlmap_maplist_url[[:space:]]+)"[^"]*"#\1"'"$DLMAPLIST"'"#' \
           -e 's#(sm_dlmap_subdirs[[:space:]]+)"[^"]*"#\1"'"$DLMAPSUBDIRS"'"#' \
     "$HOME/csgo/cfg/sourcemod/dlmap.cfg"
+apikey="$(mktemp "$HOME/csgo/cfg/sourcemod/globalapi-key.cfg-XXXXXX")"
+echo "$APIKEY" > "$apikey"
+mv "$apikey" "$HOME/csgo/cfg/sourcemod/globalapi-key.cfg"
 
 maplist="$(mktemp "$HOME/csgo/maplist.txt-XXXXXX")"
 mapcycle="$(mktemp "$HOME/csgo/mapcycle.txt-XXXXXX")"

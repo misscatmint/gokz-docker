@@ -1,5 +1,6 @@
 FROM registry.gitlab.steamos.cloud/steamrt/sniper/sdk
 ENV _VERSION=0.1 \
+    APIKEY= \
     AUTHKEY= \
     DLMAP="https://csgo-kz-maps.badservers.net/maps" \
     DLMAPLIST="https://csgo-kz-maps.badservers.net/configs/maplist.txt" \
