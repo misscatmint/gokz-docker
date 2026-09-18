@@ -328,9 +328,9 @@ unzip movementapi.zip 'addons/sourcemod/gamedata/*' \
       'addons/sourcemod/plugins/*'
 rm movementapi.zip
 
-# TODO: upgrade to 3.7.0-catmint when new globalapi is released
+# TODO: upgrade to 3.7.0 when new globalapi is released
 curl -L -o gokz.zip \
-     https://github.com/misscatmint/gokz/releases/download/3.6.4-catmint/GOKZ-v3.6.4-catmint.zip
+     https://github.com/misscatmint/gokz/releases/download/3.6.4/GOKZ-v3.6.4.zip
 unzip gokz.zip 'addons/sourcemod/gamedata/*' 'addons/sourcemod/plugins/*' \
       'addons/sourcemod/translations/*' 'cfg/*' 'maps/*' 'materials/*' \
       'models/*' 'sound/*'
