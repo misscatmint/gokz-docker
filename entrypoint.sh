@@ -8,7 +8,7 @@ mkdir -p "$HOME/.steam/sdk32"
 ln -sf "$HOME/.local/share/Steam/steamcmd/linux32/steamclient.so" \
     "$HOME/.steam/sdk32/"
 
-if [[ ! -d $HOME/csgo ]]
+if [[ ! -f "$HOME/csgo/bin/server.so" ]]
 then
     touch "$HOME/.install.lock"
     exec {installlock}<>"$HOME/.install.lock"
