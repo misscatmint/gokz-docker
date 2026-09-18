@@ -232,13 +232,13 @@ curl --output-dir addons/sourcemod/plugins -L -O \
      https://github.com/misscatmint/sm-server-whitelist-advanced/releases/download/1.5.0/serverwhitelistadvanced.smx
 mkdir -p addons/sourcemod/configs/whitelist
 cat <<EOF > addons/sourcemod/configs/whitelist/whitelist.txt
-STEAM_1:0:16599865 // Chuckles
-STEAM_1:1:21505111 // Sikari
-STEAM_1:0:79208088 // zer0.k
-STEAM_1:0:79951525 // Ruto
-STEAM_1:1:120613467 // makis
-STEAM_1:1:161178172 // AlphaKeks
-STEAM_1:1:553718349 // Reeed
+STEAM_1:0:16599865 ; Chuckles
+STEAM_1:1:21505111 ; Sikari
+STEAM_1:0:79208088 ; zer0.k
+STEAM_1:0:79951525 ; Ruto
+STEAM_1:1:120613467 ; makis
+STEAM_1:1:161178172 ; AlphaKeks
+STEAM_1:1:553718349 ; Reeed
 EOF
 mkdir -p cfg/sourcemod
 cat <<EOF > cfg/sourcemod/serverwhitelistadvanced.cfg
