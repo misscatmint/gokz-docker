@@ -1,8 +1,4 @@
-# TODO: HEALTHCHECK directive and script to query server info
-# TODO: confirm if hibernation breaks server browser queries
-
 FROM registry.gitlab.steamos.cloud/steamrt/sniper/sdk
-
 ENV _VERSION=0.1 \
     AUTHKEY= \
     DLMAP="https://csgo-kz-maps.badservers.net/maps" \
@@ -18,15 +14,18 @@ ENV _VERSION=0.1 \
     MAXPLAYERS=10 \
     MINIDUMPACCOUNT= \
     PASSWORD= \
+    PORT=27015 \
     REPLAYURL= \
     SERVERCFG=server.cfg
 
 RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
     echo steam steam/license note "" | debconf-set-selections && \
-    apt-get install -y steamcmd && \
+    apt-get install -y netcat steamcmd && \
     ln -s /usr/games/steamcmd /usr/bin/steamcmd
 RUN --mount=type=bind,source=build.sh,target=/build.sh /build.sh
-COPY entrypoint.sh run.sh /
+COPY check.sh entrypoint.sh run.sh /
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+            CMD /check.sh
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/run.sh"]
