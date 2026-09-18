@@ -1,27 +1,32 @@
+# TODO: HEALTHCHECK directive and script to query server info
+# TODO: confirm if hibernation breaks server browser queries
+
 FROM registry.gitlab.steamos.cloud/steamrt/sniper/sdk
 
-# TODO: rename one-time env vars to INITIAL_{ENVVAR}?
-# TODO: or make them all mounts/secrets?
-# TODO: multiappid/workshopfix as a build arg?
-#
-# initial vars:
-# - AUTHKEY
-# - HOSTNAME (change back to launch flag and fix quoting issues?)
-# - MINIDUMPACCOUNT
-# - REPLAYURL
-ENV AUTHKEY= FLAGS= HOME=/root HOSTNAME= MAP=2860249917 \
-    MAPCMD=host_workshop_map MINIDUMPACCOUNT= MAXPLAYERS=101 REPLAYURL= \
+ENV _VERSION=0.1 \
+    AUTHKEY= \
+    DLMAP="https://csgo-kz-maps.badservers.net/maps" \
+    DLMAPLIST="https://csgo-kz-maps.badservers.net/configs/maplist.txt" \
+    DLMAPSUBDIRS="reuploads" \
+    FASTDL="http://csgo-kz-maps.badservers.net/fastdl" \
+    FLAGS= \
+    HOME=/root \
+    HOSTNAME= \
+    MAP=kz_hikari_od \
+    MAPCMD=map \
+    MAPPOOL="https://csgo-kz-maps.badservers.net/configs/cfg/sourcemod/gokz/gokz-localranks-mappool.cfg" \
+    MAXPLAYERS=10 \
+    MINIDUMPACCOUNT= \
+    PASSWORD= \
+    REPLAYURL= \
     SERVERCFG=server.cfg
 
 RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
     echo steam steam/license note "" | debconf-set-selections && \
     apt-get install -y steamcmd && \
     ln -s /usr/games/steamcmd /usr/bin/steamcmd
-
-# TODO: HEALTHCHECK directive and script to query server info
-
+RUN --mount=type=bind,source=build.sh,target=/build.sh /build.sh
 COPY entrypoint.sh run.sh /
-RUN chmod +x /entrypoint.sh /run.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/run.sh"]
