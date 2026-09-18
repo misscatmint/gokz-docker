@@ -330,21 +330,12 @@ rm movementapi.zip
 
 # TODO: upgrade to 3.7.0 when new globalapi is released
 curl -L -o gokz.zip \
-     https://github.com/misscatmint/gokz/releases/download/3.6.4/GOKZ-v3.6.4.zip
+     https://github.com/KZGlobalTeam/gokz/releases/download/3.6.4/GOKZ-v3.6.4.zip
 unzip gokz.zip 'addons/sourcemod/gamedata/*' 'addons/sourcemod/plugins/*' \
       'addons/sourcemod/translations/*' 'cfg/*' 'maps/*' 'materials/*' \
       'models/*' 'sound/*'
 rm gokz.zip
 mkdir -p cfg/sourcemod/gokz
-cat <<EOF > cfg/sourcemod/gokz/gokz-replays.cfg
-// ConVars for plugin "gokz-replays.smx"
-
-
-// Download link to display in console when starting a replay. Put {filename} in place of the filename.
-// -
-// Default: ""
-gokz_replays_download_url ""
-EOF
 cat <<EOF > cfg/sourcemod/gokz/options.cfg
 "Options"
 {

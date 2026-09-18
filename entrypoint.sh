@@ -59,8 +59,6 @@ sed -i -E 's#("MinidumpAccount"[[:space:]]+)"[^"]*"#\1"'"$MINIDUMPACCOUNT"'"#' \
     "$HOME/csgo/addons/sourcemod/configs/core.cfg"
 
 mkdir -p "$HOME/csgo/cfg/sourcemod/gokz"
-sed -i -E 's#("gokz_replays_download_url"[[:space:]]+)"[^"]*"#\1"'"$REPLAYURL"'"#' \
-    "$HOME/csgo/cfg/sourcemod/gokz/gokz-replays.cfg"
 sed -i -E -e 's#(sm_dlmap_url[[:space:]]+)"[^"]*"#\1"'"$DLMAP"'"#' \
           -e 's#(sm_dlmap_maplist_url[[:space:]]+)"[^"]*"#\1"'"$DLMAPLIST"'"#' \
           -e 's#(sm_dlmap_subdirs[[:space:]]+)"[^"]*"#\1"'"$DLMAPSUBDIRS"'"#' \

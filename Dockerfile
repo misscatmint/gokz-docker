@@ -16,7 +16,6 @@ ENV _VERSION=0.1 \
     MINIDUMPACCOUNT= \
     PASSWORD= \
     PORT=27015 \
-    REPLAYURL= \
     SERVERCFG=server.cfg
 
 RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
