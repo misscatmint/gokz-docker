@@ -45,27 +45,59 @@ else
     echo "gokz-docker: up to date (version $_VERSION)"
 fi
 
-authkey="$(mktemp "$HOME/csgo/webapi_authkey.txt-XXXXXX")"
-echo "$AUTHKEY" > "$authkey"
-mv "$authkey" "$HOME/csgo/webapi_authkey.txt"
 sed -i -E 's#^appID=.*$#appID=4465480#' "$HOME/csgo/steam.inf"
-sed -i -E -e 's#(hostname[[:space:]]+)"[^"]*"#\1"'"$HOSTNAME"'"#' \
-          -e 's#(sv_password[[:space:]]+)"[^"]*"#\1"'"$PASSWORD"'"#' \
-          -e 's#(sv_downloadurl[[:space:]]+)"[^"]*"#\1"'"$FASTDL"'"#' \
-    "$HOME/csgo/cfg/$SERVERCFG"
 
-mkdir -p "$HOME/csgo/addons/sourcemod/configs"
-sed -i -E 's#("MinidumpAccount"[[:space:]]+)"[^"]*"#\1"'"$MINIDUMPACCOUNT"'"#' \
-    "$HOME/csgo/addons/sourcemod/configs/core.cfg"
+if [[ -n "$AUTHKEY" ]]
+then
+    authkey="$(mktemp "$HOME/csgo/webapi_authkey.txt-XXXXXX")"
+    echo "$AUTHKEY" > "$authkey"
+    mv "$authkey" "$HOME/csgo/webapi_authkey.txt"
+fi
+if [[ -n "$NAME" ]]
+then
+    sed -i -E 's#(hostname[[:space:]]+)"[^"]*"#\1"'"$NAME"'"#' \
+        "$HOME/csgo/cfg/$SERVERCFG"
+fi
+if [[ -n "$PASSWORD" ]]
+then
+    sed -i -E 's#(sv_password[[:space:]]+)"[^"]*"#\1"'"$PASSWORD"'"#' \
+        "$HOME/csgo/cfg/$SERVERCFG"
+fi
+if [[ -n "$FASTDL" ]]
+then
+    sed -i -E 's#(sv_downloadurl[[:space:]]+)"[^"]*"#\1"'"$FASTDL"'"#' \
+        "$HOME/csgo/cfg/$SERVERCFG"
+fi
 
-mkdir -p "$HOME/csgo/cfg/sourcemod/gokz"
-sed -i -E -e 's#(sm_dlmap_url[[:space:]]+)"[^"]*"#\1"'"$DLMAP"'"#' \
-          -e 's#(sm_dlmap_maplist_url[[:space:]]+)"[^"]*"#\1"'"$DLMAPLIST"'"#' \
-          -e 's#(sm_dlmap_subdirs[[:space:]]+)"[^"]*"#\1"'"$DLMAPSUBDIRS"'"#' \
-    "$HOME/csgo/cfg/sourcemod/dlmap.cfg"
-apikey="$(mktemp "$HOME/csgo/cfg/sourcemod/globalapi-key.cfg-XXXXXX")"
-echo "$APIKEY" > "$apikey"
-mv "$apikey" "$HOME/csgo/cfg/sourcemod/globalapi-key.cfg"
+if [[ -n "$MINIDUMPACCOUNT" ]]
+then
+    mkdir -p "$HOME/csgo/addons/sourcemod/configs"
+    sed -i -E 's#("MinidumpAccount"[[:space:]]+)"[^"]*"#\1"'"$MINIDUMPACCOUNT"'"#' \
+        "$HOME/csgo/addons/sourcemod/configs/core.cfg"
+fi
+
+if [[ -n "$DLMAP" ]]
+then
+    mkdir -p "$HOME/csgo/cfg/sourcemod/gokz"
+    sed -i -E 's#(sm_dlmap_url[[:space:]]+)"[^"]*"#\1"'"$DLMAP"'"#' \
+        "$HOME/csgo/cfg/sourcemod/dlmap.cfg"
+fi
+if [[ -n "$DLMAPLIST" ]]
+then
+    sed -i -E 's#(sm_dlmap_maplist_url[[:space:]]+)"[^"]*"#\1"'"$DLMAPLIST"'"#' \
+        "$HOME/csgo/cfg/sourcemod/dlmap.cfg"
+fi
+if [[ -n "$DLMAPSUBDIRS" ]]
+then
+    sed -i -E 's#(sm_dlmap_subdirs[[:space:]]+)"[^"]*"#\1"'"$DLMAPSUBDIRS"'"#' \
+        "$HOME/csgo/cfg/sourcemod/dlmap.cfg"
+fi
+if [[ -n "$APIKEY" ]]
+then
+    apikey="$(mktemp "$HOME/csgo/cfg/sourcemod/globalapi-key.cfg-XXXXXX")"
+    echo "$APIKEY" > "$apikey"
+    mv "$apikey" "$HOME/csgo/cfg/sourcemod/globalapi-key.cfg"
+fi
 
 maplist="$(mktemp "$HOME/csgo/maplist.txt-XXXXXX")"
 mapcycle="$(mktemp "$HOME/csgo/mapcycle.txt-XXXXXX")"
