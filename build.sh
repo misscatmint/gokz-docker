@@ -23,7 +23,7 @@ gokz_settings_enforcer 1
 EOF
 
 curl -L -o multiappid.zip \
-     https://github.com/zer0k-z/csgo-multi-appid/releases/download/latest/csgo-multi-appid-linux.zip
+     https://github.com/zer0k-z/csgo-multi-appid/releases/download/v1.0.0/csgo-multi-appid-linux.zip
 unzip multiappid.zip
 rm multiappid.zip
 
