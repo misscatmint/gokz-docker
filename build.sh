@@ -410,6 +410,19 @@ cat <<EOF > cfg/sourcemod/gokz/options.cfg
 }
 EOF
 
+curl -L -o gokz-pistol-fix.zip \
+     https://github.com/misscatmint/gokz/releases/download/3.6.4-pistol-fix/GOKZ-v3.6.4-pistol-fix.zip
+unzip -o gokz-pistol-fix.zip addons/sourcemod/plugins/gokz-pistol.smx
+rm gokz-pistol-fix.zip
+
+curl -L -o gokz-syncable-replays.zip \
+     https://github.com/misscatmint/gokz/releases/download/3.6.4-syncable-replays/GOKZ-v3.6.4-syncable-replays.zip
+unzip -o gokz-syncable-replays.zip 'addons/sourcemod/plugins/gokz-localdb.smx' \
+      addons/sourcemod/plugins/gokz-localranks.smx \
+      addons/sourcemod/plugins/gokz-replays.smx \
+      addons/sourcemod/translations/gokz-localranks.phrases.txt
+rm gokz-syncable-replays.zip
+
 curl -L -o globalapi.zip \
      https://bitbucket.org/kztimerglobalteam/globalapi-smplugin/downloads/GlobalAPI-v2.0.4.zip
 unzip globalapi.zip 'addons/sourcemod/plugins/*'
