@@ -328,9 +328,8 @@ unzip movementapi.zip 'addons/sourcemod/gamedata/*' \
       'addons/sourcemod/plugins/*'
 rm movementapi.zip
 
-# TODO: upgrade to 3.7.0 when new globalapi is released
 curl -L -o gokz.zip \
-     https://github.com/KZGlobalTeam/gokz/releases/download/3.6.4/GOKZ-v3.6.4.zip
+     https://github.com/KZGlobalTeam/gokz/releases/download/3.7.0/GOKZ-v3.7.0.zip
 unzip gokz.zip 'addons/sourcemod/gamedata/*' 'addons/sourcemod/plugins/*' \
       'addons/sourcemod/translations/*' 'cfg/*' 'maps/*' 'materials/*' \
       'models/*' 'sound/*'
@@ -410,13 +409,8 @@ cat <<EOF > cfg/sourcemod/gokz/options.cfg
 }
 EOF
 
-curl -L -o gokz-pistol-fix.zip \
-     https://github.com/misscatmint/gokz/releases/download/3.6.4-pistol-fix/GOKZ-v3.6.4-pistol-fix.zip
-unzip -o gokz-pistol-fix.zip addons/sourcemod/plugins/gokz-pistol.smx
-rm gokz-pistol-fix.zip
-
 curl -L -o gokz-syncable-replays.zip \
-     https://github.com/misscatmint/gokz/releases/download/3.6.4-syncable-replays/GOKZ-v3.6.4-syncable-replays.zip
+     https://github.com/misscatmint/gokz/releases/download/3.7.0-syncable-replays/GOKZ-v3.7.0-syncable-replays.zip
 unzip -o gokz-syncable-replays.zip 'addons/sourcemod/plugins/gokz-localdb.smx' \
       addons/sourcemod/plugins/gokz-localranks.smx \
       addons/sourcemod/plugins/gokz-replays.smx \
@@ -424,7 +418,7 @@ unzip -o gokz-syncable-replays.zip 'addons/sourcemod/plugins/gokz-localdb.smx' \
 rm gokz-syncable-replays.zip
 
 curl -L -o globalapi.zip \
-     https://bitbucket.org/kztimerglobalteam/globalapi-smplugin/downloads/GlobalAPI-v2.0.4.zip
+     https://github.com/misscatmint/csgo-sm-globalapi/releases/download/v2.1.0/GlobalAPI-v2.1.0.zip
 unzip globalapi.zip 'addons/sourcemod/plugins/*'
 rm globalapi.zip
 
