@@ -10,6 +10,8 @@ hostname ""
 sv_password ""
 sv_downloadurl ""
 
+host_players_show 2
+host_info_show 2
 mp_autokick 0
 mp_timelimit 0
 sv_allowdownload 1
