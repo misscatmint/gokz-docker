@@ -10,12 +10,16 @@ hostname ""
 sv_password ""
 sv_downloadurl ""
 
+log on
 host_players_show 2
 host_info_show 2
 mp_autokick 0
 mp_timelimit 0
 sv_allowdownload 1
+sv_logbans 1
+sv_minrate 98304
 sv_pure 0
+sv_reliableavatardata 1
 
 sv_cheats 0
 sv_autobunnyhopping 0
@@ -25,7 +29,7 @@ gokz_settings_enforcer 1
 EOF
 
 curl -L -o multiappid.zip \
-     https://github.com/zer0k-z/csgo-multi-appid/releases/download/v1.0.0/csgo-multi-appid-linux.zip
+     https://github.com/zer0k-z/csgo-multi-appid/releases/download/v1.0.1/csgo-multi-appid-linux.zip
 unzip multiappid.zip
 rm multiappid.zip
 
