@@ -500,11 +500,6 @@ mkdir -p addons/sourcemod/plugins
 curl --output-dir addons/sourcemod/plugins -L -O \
      https://github.com/misscatmint/its-too-dark/releases/download/1.0/its-too-dark.smx
 
-curl -L -o antifun.zip \
-     https://github.com/FemboyKZ/anti-fun/releases/download/0.0.1/anti-fun-csgo.zip
-unzip antifun.zip 'addons/sourcemod/plugins/*'
-rm antifun.zip
-
 curl -L -o missedby.zip \
      https://github.com/FemboyKZ/sm-missedby/releases/download/1.0.3/fkz-missedby.zip
 unzip missedby.zip 'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*'
