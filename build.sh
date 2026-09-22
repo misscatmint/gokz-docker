@@ -204,8 +204,8 @@ curl -L -o addons/sourcemod/plugins/CommandAliases.smx \
      https://bitbucket.org/Sikarii/sm-commandaliases/downloads/CommandAliases-latest.smx
 
 curl -L -o steamworks.tar.gz \
-     https://users.alliedmods.net/~kyles/builds/SteamWorks/SteamWorks-git132-linux.tar.gz
-tar xvkf steamworks.tar.gz addons/sourcemod/extensions
+     https://github.com/KyleSanderson/SteamWorks/releases/download/1.2.3c/package-lin.tgz
+tar xvkf steamworks.tar.gz package/addons/sourcemod/extensions --strip-components=1
 rm steamworks.tar.gz
 
 mkdir -p addons/sourcemod/plugins
