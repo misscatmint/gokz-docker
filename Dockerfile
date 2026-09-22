@@ -20,12 +20,12 @@ ENV _VERSION=0.1 \
 
 RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
     echo steam steam/license note "" | debconf-set-selections && \
-    apt-get install -y netcat steamcmd && \
+    apt-get install -y netcat steamcmd tini && \
     ln -s /usr/games/steamcmd /usr/bin/steamcmd
 RUN --mount=type=bind,source=build.sh,target=/build.sh /build.sh
 COPY check.sh entrypoint.sh run.sh /
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
             CMD /check.sh
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
 CMD ["/run.sh"]
