@@ -102,9 +102,9 @@ fi
 maplist="$(mktemp "$HOME/csgo/maplist.txt-XXXXXX")"
 mapcycle="$(mktemp "$HOME/csgo/mapcycle.txt-XXXXXX")"
 find "$HOME/csgo/maps/" -type f \
-    \( -name 'bkz_*.bsp*' -o -name 'kz_*.bsp*' -o -name 'kzpro_*.bsp*' -o \
-       -name 'skz_*.bsp*' -o -name 'vnl_*.bsp*' -o -name 'xc_*.bsp*' \) \
-    | sed 's#.*/##' | sed 's#.bsp##' | sort | uniq > "$maplist"
+    \( -name 'bkz_*.bsp' -o -name 'kz_*.bsp' -o -name 'kzpro_*.bsp' -o \
+       -name 'skz_*.bsp' -o -name 'vnl_*.bsp' -o -name 'xc_*.bsp' \) \
+    | sed 's#.*/##' | sed 's#.bsp$##' | LC_ALL=C sort | uniq > "$maplist"
 cat "$maplist" > "$mapcycle"
 mv "$maplist" "$HOME/csgo/maplist.txt"
 mv "$mapcycle" "$HOME/csgo/mapcycle.txt"
