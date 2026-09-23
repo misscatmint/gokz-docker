@@ -511,7 +511,7 @@ tar xvkf vanillatier.tar.gz ./addons/sourcemod/plugins
 rm vanillatier.tar.gz
 
 curl -L -o ljroom.zip \
-     https://github.com/misscatmint/gokz-ljroom-tp/releases/download/2.3.1/gokz-ljroom-tp-2.3.1.zip
+     https://github.com/misscatmint/gokz-ljroom-tp/releases/download/2.3.2/gokz-ljroom-tp-2.3.2.zip
 unzip ljroom.zip 'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*'
 rm ljroom.zip
 
