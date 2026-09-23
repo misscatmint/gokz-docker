@@ -40,7 +40,7 @@ tar xvkf metamod.tar.gz
 rm metamod.tar.gz
 
 curl -L -o autorestart.zip \
-     https://github.com/misscatmint/mm-autorestart/releases/download/3.0.0/autorestart-linux-mm-1.12.zip
+     https://github.com/misscatmint/mm-autorestart/releases/download/3.0.1/autorestart-linux-mm-1.12.zip
 unzip autorestart.zip
 rm autorestart.zip
 
