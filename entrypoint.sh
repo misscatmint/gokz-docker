@@ -109,7 +109,7 @@ cat "$maplist" > "$mapcycle"
 mv "$maplist" "$HOME/csgo/maplist.txt"
 mv "$mapcycle" "$HOME/csgo/mapcycle.txt"
 
-if [[ -n "$FASTDL" ]]
+if [[ -n "$MAPPOOL" ]]
 then
     mkdir -p "$HOME/csgo/cfg/sourcemod/gokz"
     mappool="$(mktemp "$HOME/csgo/cfg/sourcemod/gokz/gokz-localranks-mappool.cfg-XXXXXX")"
