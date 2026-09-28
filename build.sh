@@ -22,10 +22,13 @@ sv_minrate 98304
 sv_pure 0
 sv_reliableavatardata 1
 
-sv_cheats 0
 sv_autobunnyhopping 0
-sm plugins load gokz-global.smx
+sv_cheats 0
 sm plugins load gokz-anticheat.smx
+sm plugins load gokz-global.smx
+sm plugins load gokz-replays.smx
+sm plugins load gokz-localranks.smx
+sm plugins load gokz-localdb.smx
 gokz_settings_enforcer 1
 EOF
 
