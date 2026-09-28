@@ -178,8 +178,9 @@ sm_dlmap_url ""
 EOF
 
 mkdir -p addons/sourcemod/plugins
-curl --output-dir addons/sourcemod/plugins -L -O \
-     https://github.com/misscatmint/sm-server-whitelist-advanced/releases/download/1.5.0/serverwhitelistadvanced.smx
+curl -L -o serverwhitelistadvanced.zip \
+     https://github.com/FemboyKZ/sm-server-whitelist-advanced/releases/download/1.6.2/serverwhitelistadvanced-1.6.2.zip
+unzip serverwhitelistadvanced.zip 'addons/sourcemod/plugins/*'
 mkdir -p addons/sourcemod/configs/whitelist
 cat <<EOF > addons/sourcemod/configs/whitelist/whitelist.txt
 STEAM_1:0:16599865 ; Chuckles
