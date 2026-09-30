@@ -23,7 +23,7 @@ RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
     apt-get install -y netcat steamcmd tini && \
     ln -s /usr/games/steamcmd /usr/bin/steamcmd
 RUN --mount=type=bind,source=build.sh,target=/build.sh /build.sh
-COPY check.sh entrypoint.sh run.sh /
+COPY --chmod=755 check.sh entrypoint.sh run.sh /
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
             CMD /check.sh
