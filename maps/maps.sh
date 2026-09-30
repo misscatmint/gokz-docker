@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -xeuo pipefail
+set -xeu
 
 cd /data/csgo
 curl -fL http://csgo-kz-maps.badservers.net/downloads/raw-maps.aria2.txt | \
