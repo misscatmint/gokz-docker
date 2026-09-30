@@ -2,7 +2,32 @@
 
 set -Eeuo pipefail
 
-export HOME=/data
+# Downloads to a temp file first so a failed transfer never replaces a good file.
+download() {
+    local url=$1 dest=$2 tmp
+    tmp="$(mktemp "$dest-XXXXXX")"
+    if curl -fsSL -o "$tmp" "$url"; then mv "$tmp" "$dest"; else rm -f "$tmp"; fi
+}
+
+# Escapes the characters that are special in the replacement half of s#..#..#.
+sed_escape() { printf '%s' "$1" | sed 's/[\\&#]/\\&/g'; }
+
+# set_cvar FILE KEY VALUE: replaces the quoted value after KEY; skipped when
+# VALUE is empty.
+set_cvar() {
+    [[ -z $3 ]] ||
+        sed -i -E "s#(^[[:space:]]*$2[[:space:]]+)\"[^\"]*\"#\1\"$(sed_escape "$3")\"#" "$1"
+}
+
+# --out-format prints each file rsync creates or replaces (directories end in /).
+rsync_opts=(-a --omit-dir-times --delay-updates
+            --out-format='gokz-docker: updated %n')
+
+# Files the admin moved into a disabled/ folder must not be copied back.
+disabled_excludes() {
+    find "$HOME/csgo/addons" -path '*/disabled/*' -type f \
+         -printf '/csgo/addons/%P\n' | sed 's#/disabled/#/#'
+}
 
 mkdir -p "$HOME/.steam/sdk32"
 ln -sf "$HOME/.local/share/Steam/steamcmd/linux32/steamclient.so" \
@@ -21,10 +46,9 @@ then
     exec {installlock}>&-
 fi
 
-if [[ ! -f "$HOME/.gokz-docker-version" ||
-      "$(tr -d '\n' < "$HOME/.gokz-docker-version")" != "$_VERSION" ]]
+if ! cmp -s "$HOME/.gokz-docker-version" /build/.version
 then
-    echo "gokz-docker: updating gokz-docker $_VERSION"
+    echo "gokz-docker: updating to $(cut -c1-12 /build/.version)"
     touch "$HOME/.update.lock"
     exec {updatelock}<>"$HOME/.update.lock"
     if ! flock -x -w 30 "$updatelock"; then
@@ -32,17 +56,17 @@ then
         exit 1
     fi
     mkdir -p "$HOME/csgo/cfg" "$HOME/csgo/addons/sourcemod"
-    rsync -a --delay-updates --ignore-existing /build/server.cfg \
+    rsync "${rsync_opts[@]}" --ignore-existing /build/server.cfg \
           "$HOME/csgo/cfg/$SERVERCFG"
-    rsync -a --delay-updates --ignore-existing /build/csgo/cfg "$HOME/csgo/"
-    rsync -a --delay-updates --ignore-existing \
+    rsync "${rsync_opts[@]}" --ignore-existing /build/csgo/cfg "$HOME/csgo/"
+    rsync "${rsync_opts[@]}" --ignore-existing \
           /build/csgo/addons/sourcemod/configs "$HOME/csgo/addons/sourcemod/"
-    rsync -a --delay-updates --exclude cfg --exclude addons/sourcemod/configs \
-          /build/csgo "$HOME"
-    echo "$_VERSION" > "$HOME/.gokz-docker-version"
+    rsync "${rsync_opts[@]}" --exclude cfg --exclude addons/sourcemod/configs \
+          --exclude-from=<(disabled_excludes) /build/csgo "$HOME"
+    cp /build/.version "$HOME/.gokz-docker-version"
     exec {updatelock}>&-
 else
-    echo "gokz-docker: up to date (version $_VERSION)"
+    echo "gokz-docker: up to date ($(cut -c1-12 /build/.version))"
 fi
 
 sed -i -E 's#^appID=.*$#appID=4465480#' "$HOME/csgo/steam.inf"
@@ -53,45 +77,14 @@ then
     echo "$AUTHKEY" > "$authkey"
     mv "$authkey" "$HOME/csgo/webapi_authkey.txt"
 fi
-if [[ -n "$NAME" ]]
-then
-    sed -i -E 's#(hostname[[:space:]]+)"[^"]*"#\1"'"$NAME"'"#' \
-        "$HOME/csgo/cfg/$SERVERCFG"
-fi
-if [[ -n "$PASSWORD" ]]
-then
-    sed -i -E 's#(sv_password[[:space:]]+)"[^"]*"#\1"'"$PASSWORD"'"#' \
-        "$HOME/csgo/cfg/$SERVERCFG"
-fi
-if [[ -n "$FASTDL" ]]
-then
-    sed -i -E 's#(sv_downloadurl[[:space:]]+)"[^"]*"#\1"'"$FASTDL"'"#' \
-        "$HOME/csgo/cfg/$SERVERCFG"
-fi
-
-if [[ -n "$MINIDUMPACCOUNT" ]]
-then
-    mkdir -p "$HOME/csgo/addons/sourcemod/configs"
-    sed -i -E 's#("MinidumpAccount"[[:space:]]+)"[^"]*"#\1"'"$MINIDUMPACCOUNT"'"#' \
-        "$HOME/csgo/addons/sourcemod/configs/core.cfg"
-fi
-
-if [[ -n "$DLMAP" ]]
-then
-    mkdir -p "$HOME/csgo/cfg/sourcemod/gokz"
-    sed -i -E 's#(sm_dlmap_url[[:space:]]+)"[^"]*"#\1"'"$DLMAP"'"#' \
-        "$HOME/csgo/cfg/sourcemod/dlmap.cfg"
-fi
-if [[ -n "$DLMAPLIST" ]]
-then
-    sed -i -E 's#(sm_dlmap_maplist_url[[:space:]]+)"[^"]*"#\1"'"$DLMAPLIST"'"#' \
-        "$HOME/csgo/cfg/sourcemod/dlmap.cfg"
-fi
-if [[ -n "$DLMAPSUBDIRS" ]]
-then
-    sed -i -E 's#(sm_dlmap_subdirs[[:space:]]+)"[^"]*"#\1"'"$DLMAPSUBDIRS"'"#' \
-        "$HOME/csgo/cfg/sourcemod/dlmap.cfg"
-fi
+set_cvar "$HOME/csgo/cfg/$SERVERCFG" hostname "$NAME"
+set_cvar "$HOME/csgo/cfg/$SERVERCFG" sv_password "$PASSWORD"
+set_cvar "$HOME/csgo/cfg/$SERVERCFG" sv_downloadurl "$FASTDL"
+set_cvar "$HOME/csgo/addons/sourcemod/configs/core.cfg" '"MinidumpAccount"' \
+         "$MINIDUMPACCOUNT"
+set_cvar "$HOME/csgo/cfg/sourcemod/dlmap.cfg" sm_dlmap_url "$DLMAP"
+set_cvar "$HOME/csgo/cfg/sourcemod/dlmap.cfg" sm_dlmap_maplist_url "$DLMAPLIST"
+set_cvar "$HOME/csgo/cfg/sourcemod/dlmap.cfg" sm_dlmap_subdirs "$DLMAPSUBDIRS"
 if [[ -n "$APIKEY" ]]
 then
     apikey="$(mktemp "$HOME/csgo/cfg/sourcemod/globalapi-key.cfg-XXXXXX")"
@@ -104,28 +97,21 @@ mapcycle="$(mktemp "$HOME/csgo/mapcycle.txt-XXXXXX")"
 find "$HOME/csgo/maps/" -type f \
     \( -name 'bkz_*.bsp' -o -name 'kz_*.bsp' -o -name 'kzpro_*.bsp' -o \
        -name 'skz_*.bsp' -o -name 'vnl_*.bsp' -o -name 'xc_*.bsp' \) \
-    | sed 's#.*/##' | sed 's#.bsp$##' | LC_ALL=C sort | uniq > "$maplist"
-cat "$maplist" > "$mapcycle"
+    | sed 's#.*/##; s#\.bsp$##' | LC_ALL=C sort -u > "$maplist"
+cp "$maplist" "$mapcycle"
 mv "$maplist" "$HOME/csgo/maplist.txt"
 mv "$mapcycle" "$HOME/csgo/mapcycle.txt"
 
 if [[ -n "$MAPPOOL" ]]
 then
     mkdir -p "$HOME/csgo/cfg/sourcemod/gokz"
-    mappool="$(mktemp "$HOME/csgo/cfg/sourcemod/gokz/gokz-localranks-mappool.cfg-XXXXXX")"
-    curl -s -S --show-error -L -o "$mappool" "$MAPPOOL" && \
-    mv "$mappool" "$HOME/csgo/cfg/sourcemod/gokz/gokz-localranks-mappool.cfg" || \
-    true
+    download "$MAPPOOL" "$HOME/csgo/cfg/sourcemod/gokz/gokz-localranks-mappool.cfg"
 fi
 
 if [[ "$MAPCMD" == "map" && -n "$DLMAP" && ! -f "$HOME/csgo/maps/$MAP.bsp" ]]
 then
-    bsp="$(mktemp "$HOME/csgo/maps/$MAP.bsp-XXXXXX")"
-    curl -s -S --show-error -L -o "$bsp" "$DLMAP/$MAP.bsp" && \
-    mv "$bsp" "$HOME/csgo/maps/$MAP.bsp" || true
-    nav="$(mktemp "$HOME/csgo/maps/$MAP.nav-XXXXXX")"
-    curl -s -S --show-error -L -o "$nav" "$DLMAP/$MAP.nav" && \
-    mv "$nav" "$HOME/csgo/maps/$MAP.nav" || true
+    download "$DLMAP/$MAP.bsp" "$HOME/csgo/maps/$MAP.bsp"
+    download "$DLMAP/$MAP.nav" "$HOME/csgo/maps/$MAP.nav"
 fi
 
 exec "$@"

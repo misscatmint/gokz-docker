@@ -1,482 +1,138 @@
 #!/bin/bash
 
-set -xEeuo pipefail
+set -Eeuo pipefail
 
 mkdir -p /build/csgo
 cd /build/csgo
 
-cat <<EOF > /build/server.cfg
-hostname ""
-sv_password ""
-sv_downloadurl ""
+fetch() {
+    curl -fsSL --retry 3 --create-dirs -o "$1" "$2" ||
+        { echo "fetch failed: $2" >&2; return 1; }
+}
 
-log on
-autorestart_time "05:00" // 5:00 AM UTC (change to suit your server)
-host_players_show 2
-host_info_show 2
-mp_autokick 0
-mp_timelimit 0
-sv_allowdownload 1
-sv_logbans 1
-sv_minrate 98304
-sv_pure 0
-sv_reliableavatardata 1
+# unpack [-o] [-s PREFIX] URL [member...]
+#   -o  overwrite existing files (without it, zip and tar both fail on conflicts)
+#   -s  the archive keeps everything under PREFIX/. Members are given relative
+#       to it, and end up in the cwd without the prefix.
+unpack() {
+    local overwrite=() prefix=
+    while [[ $1 == -* ]]; do
+        case $1 in
+            -o) overwrite=(-o); shift ;;
+            -s) prefix=$2/; shift 2 ;;
+            *)  echo "unpack: unknown option $1" >&2; return 1 ;;
+        esac
+    done
+    local url=$1; shift
+    local archive=${url##*/} members=() m
+    for m in "$@"; do members+=("$prefix$m"); done
 
-sv_autobunnyhopping 0
-sv_cheats 0
-sm plugins load gokz-anticheat.smx
-sm plugins load gokz-global.smx
-sm plugins load gokz-replays.smx
-sm plugins load gokz-localranks.smx
-sm plugins load gokz-localdb.smx
-gokz_settings_enforcer 1
-EOF
+    fetch "$archive" "$url"
+    case $archive in
+        *.zip)    unzip -q "${overwrite[@]}" "$archive" "${members[@]}" </dev/null ;;
+        *.tar.gz) tar xkf "$archive" "${members[@]}" ;;
+        *)        echo "unpack: unsupported archive $archive" >&2; return 1 ;;
+    esac
+    rm "$archive"
+    if [[ -n $prefix ]]; then
+        cp -a "$prefix." . && rm -r "${prefix%%/*}"
+    fi
+}
 
-curl -L -o multiappid.zip \
-     https://github.com/zer0k-z/csgo-multi-appid/releases/download/v1.0.2/csgo-multi-appid-linux.zip
-unzip multiappid.zip
-rm multiappid.zip
+# Downloads. Order matters where an archive overrides another (-o).
 
-curl -L -o metamod.tar.gz \
-     https://github.com/alliedmodders/metamod-source/releases/download/1.12.0.1226/mmsource-1.12.0-git1226-linux.tar.gz
-tar xvkf metamod.tar.gz
-rm metamod.tar.gz
+unpack https://github.com/zer0k-z/csgo-multi-appid/releases/download/v1.0.2/csgo-multi-appid-linux.zip
+unpack https://github.com/alliedmodders/metamod-source/releases/download/1.12.0.1226/mmsource-1.12.0-git1226-linux.tar.gz
+unpack https://github.com/misscatmint/mm-autorestart/releases/download/3.0.1/autorestart-linux-mm-1.12.zip
+unpack https://github.com/alliedmodders/sourcemod/releases/download/1.12.0.7253/sourcemod-1.12.0-git7253-linux.tar.gz \
+    --exclude=addons/sourcemod/scripting
+unpack -s linux https://builds.limetech.io/files/accelerator-2.6.0-git166-a4dbe6f-linux.zip \
+    'addons/sourcemod/extensions/*' 'addons/sourcemod/gamedata/*'
+unpack https://github.com/nuxencs/NoLobbyReservation/releases/download/v0.0.1/NoLobbyReservation.zip \
+    'addons/sourcemod/gamedata/*' 'addons/sourcemod/plugins/*'
+fetch addons/sourcemod/plugins/fixcrash_mapchange.smx \
+      https://github.com/misscatmint/csgo-fix-mapchange-crash-sm/releases/download/1.0.1/fixcrash_mapchange.smx
+fetch addons/sourcemod/plugins/itemcrashfix.smx \
+      https://github.com/misscatmint/itemcrashfix/releases/download/0.1/itemcrashfix.smx
+fetch addons/sourcemod/plugins/CommandAliases.smx \
+      https://bitbucket.org/Sikarii/sm-commandaliases/downloads/CommandAliases-latest.smx
+unpack https://github.com/BadServersNet/sm-steamworks/releases/download/v1.2.168/SteamWorks-1.2.168-sm1.12-linux.tar.gz \
+    addons/sourcemod/extensions
+fetch addons/sourcemod/plugins/dlmap.smx \
+      https://github.com/misscatmint/sm-dlmap/releases/download/0.5/dlmap.smx
+unpack https://github.com/FemboyKZ/sm-server-whitelist-advanced/releases/download/1.6.2/serverwhitelistadvanced-1.6.2.zip \
+    'addons/sourcemod/plugins/*'
+unpack https://github.com/FemboyKZ/MovementAPI/releases/download/2.5.0/movementapi-2.5.0.zip \
+    'addons/sourcemod/gamedata/*' 'addons/sourcemod/plugins/*'
+unpack https://github.com/KZGlobalTeam/gokz/releases/download/3.7.0/GOKZ-v3.7.0.zip \
+    'addons/sourcemod/gamedata/*' 'addons/sourcemod/plugins/*' \
+    'addons/sourcemod/translations/*' 'cfg/*' 'maps/*' 'materials/*' \
+    'models/*' 'sound/*'
+unpack -o https://github.com/misscatmint/gokz/releases/download/3.7.0-syncable-replays/GOKZ-v3.7.0-syncable-replays.zip \
+    addons/sourcemod/plugins/gokz-localdb.smx \
+    addons/sourcemod/plugins/gokz-localranks.smx \
+    addons/sourcemod/plugins/gokz-replays.smx \
+    addons/sourcemod/translations/gokz-localranks.phrases.txt
+unpack https://github.com/misscatmint/csgo-sm-globalapi/releases/download/v2.1.0/GlobalAPI-v2.1.0.zip \
+    'addons/sourcemod/plugins/*'
+fetch addons/sourcemod/plugins/KZServerAdvisor.smx \
+      https://github.com/KZGlobalTeam/csgo-kz-server-advisor/releases/download/1.2.0/KZServerAdvisor-v1.2.0.smx
+fetch addons/sourcemod/plugins/scoreboardtimer.smx \
+      https://github.com/DevRuto/GOKZ-Scoreboard-Timer/releases/download/0.05/scoreboardtimer.smx
+unpack -s bsp-peek-linux-sniper--mm-1.12--sm-1.12 https://github.com/jvnipers/bsp-peek/releases/download/1.6.1/bsp-peek-linux-sniper--mm-1.12--sm-1.12.zip \
+    'addons/sourcemod/extensions/*' 'addons/sourcemod/gamedata/*'
+unpack https://github.com/FemboyKZ/movementhud/releases/download/v3.0.9/movementhud-v3.0.9.zip \
+    'addons/sourcemod/plugins/*'
+fetch addons/sourcemod/plugins/showpos.smx \
+      https://github.com/zer0k-z/showpos/releases/download/v0.0.2/showpos.smx
+unpack https://github.com/BadServersNet/sm-distbug/releases/download/v2.0.2/distbugfix-v2.0.2.tar.gz \
+    ./addons/sourcemod/plugins
+unpack https://github.com/BadServersNet/sm-zone-stopwatch/releases/download/v1.0.3/zone-stopwatch-v1.0.3.tar.gz \
+    ./addons/sourcemod/plugins
+unpack https://github.com/zer0k-z/more-stats/releases/download/v3.1.2/more-stats.zip \
+    'addons/sourcemod/plugins/*'
+fetch addons/sourcemod/plugins/showtriggers.smx \
+      'https://www.sourcemod.net/vbcompiler.php?file_id=158717'
+unpack https://github.com/GAMMACASE/NightVision/releases/download/1.0.1/nightvision_1.0.1.zip \
+    'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*' \
+    'addons/sourcemod/translations/*' 'materials/*'
+fetch addons/sourcemod/plugins/its-too-dark.smx \
+      https://github.com/misscatmint/its-too-dark/releases/download/1.0/its-too-dark.smx
+unpack https://github.com/FemboyKZ/sm-missedby/releases/download/1.0.3/fkz-missedby.zip \
+    'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*'
+unpack https://github.com/BadServersNet/sm-vanilla-tier/releases/download/v1.0.4/vanilla-tier-v1.0.4.tar.gz \
+    ./addons/sourcemod/plugins
+unpack https://github.com/misscatmint/gokz-ljroom-tp/releases/download/2.3.2/gokz-ljroom-tp-2.3.2.zip \
+    'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*'
+unpack https://github.com/komashchenko/PTaH/releases/download/v1.1.4/linux.zip \
+    'addons/sourcemod/extensions/*' 'addons/sourcemod/gamedata/*'
+unpack https://github.com/kgns/weapons/releases/download/v1.7.8/weapons-v1.7.8.zip \
+    'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*' \
+    'addons/sourcemod/translations/*' 'cfg/*'
+unpack https://github.com/kgns/gloves/releases/download/v1.0.5/gloves-v1.0.5.zip \
+    'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*' \
+    'addons/sourcemod/translations/*' 'cfg/*'
 
-curl -L -o autorestart.zip \
-     https://github.com/misscatmint/mm-autorestart/releases/download/3.0.1/autorestart-linux-mm-1.12.zip
-unzip autorestart.zip
-rm autorestart.zip
+# Adjustments to what was downloaded.
 
-curl -L -o sourcemod.tar.gz \
-    https://github.com/alliedmodders/sourcemod/releases/download/1.12.0.7253/sourcemod-1.12.0-git7253-linux.tar.gz
-tar xvkf sourcemod.tar.gz --exclude=addons/sourcemod/scripting
-rm sourcemod.tar.gz
 rm addons/sourcemod/extensions/updater.ext.so
 rm addons/sourcemod/extensions/x64/updater.ext.so
 mv addons/sourcemod/plugins/basevotes.smx addons/sourcemod/plugins/disabled/
 mv addons/sourcemod/plugins/funcommands.smx addons/sourcemod/plugins/disabled/
 mv addons/sourcemod/plugins/funvotes.smx addons/sourcemod/plugins/disabled/
 mv addons/sourcemod/plugins/playercommands.smx addons/sourcemod/plugins/disabled/
-mkdir -p addons/sourcemod/configs
 sed -i -E 's/("FollowCSGOServerGuidelines"[[:space:]]+)"[^"]+"/\1"no"/' \
     addons/sourcemod/configs/core.cfg
-sed -i '$d' addons/sourcemod/configs/core.cfg
-cat <<EOF >> addons/sourcemod/configs/core.cfg
-
-	"MinidumpAccount"	""
-}
-EOF
-cat <<EOF > addons/sourcemod/configs/databases.cfg
-"Databases"
-{
-	"driver_default"		"sqlite"
-
-	// When specifying "host", you may use an IP address, a hostname, or a socket file path
-
-	"default"
-	{
-		"driver"			"default"
-		"database"			"sourcemod"
-		//"user"			"root"
-		//"pass"			""
-		//"timeout"			"0"
-		//"port"			"0"
-	}
-	
-	"storage-local"
-	{
-		"driver"			"sqlite"
-		"database"			"sourcemod-local"
-	}
-
-	"clientprefs"
-	{
-		"driver"			"sqlite"
-		"database"			"clientprefs-sqlite"
-	}
-
-	"gokz"
-	{
-		"driver"			"sqlite"
-		"database"			"gokz-sqlite"
-	}
-
-	"missedby"
-	{
-		"driver"			"sqlite"
-		"database"			"missedby-sqlite"
-	}
-
-	"more-stats"
-	{
-		"driver"			"sqlite"
-		"database"			"more-stats-sqlite"
-	}
-}
-EOF
-cat <<EOF > addons/sourcemod/configs/admin_overrides.cfg
-Overrides
-{
-	"sm_bhopcheck"	""
-}
-EOF
-
-curl -L -o accelerator.zip \
-     https://builds.limetech.io/files/accelerator-2.6.0-git166-a4dbe6f-linux.zip
-unzip accelerator.zip 'linux/addons/sourcemod/extensions/*' \
-      'linux/addons/sourcemod/gamedata/*'
-cp -a linux/addons .
-rm -r linux
-rm accelerator.zip
-
-curl -L -o nolobbyreservation.zip \
-     https://github.com/nuxencs/NoLobbyReservation/releases/download/v0.0.1/NoLobbyReservation.zip
-unzip nolobbyreservation.zip 'addons/sourcemod/gamedata/*' \
-      'addons/sourcemod/plugins/*'
-rm nolobbyreservation.zip
-
-mkdir -p addons/sourcemod/plugins
-curl --output-dir addons/sourcemod/plugins/ -L -O \
-     https://github.com/misscatmint/csgo-fix-mapchange-crash-sm/releases/download/1.0.1/fixcrash_mapchange.smx
-
-mkdir -p addons/sourcemod/plugins
-curl --output-dir addons/sourcemod/plugins/ -L -O \
-     https://github.com/misscatmint/itemcrashfix/releases/download/0.1/itemcrashfix.smx
-
-mkdir -p addons/sourcemod/plugins
-curl -L -o addons/sourcemod/plugins/CommandAliases.smx \
-     https://bitbucket.org/Sikarii/sm-commandaliases/downloads/CommandAliases-latest.smx
-
-curl -L -o steamworks.tar.gz \
-     https://github.com/BadServersNet/sm-steamworks/releases/download/v1.2.168/SteamWorks-1.2.168-sm1.12-linux.tar.gz
-tar xvkf steamworks.tar.gz addons/sourcemod/extensions
-rm steamworks.tar.gz
-
-mkdir -p addons/sourcemod/plugins
-curl --output-dir addons/sourcemod/plugins/ -L -O \
-     https://github.com/misscatmint/sm-dlmap/releases/download/0.5/dlmap.smx
-mkdir -p cfg/sourcemod
-cat <<EOF > cfg/sourcemod/dlmap.cfg
-// This file was auto-generated by SourceMod (v1.12.0.7253)
-// ConVars for plugin "dlmap.smx"
-
-
-// optional maplist.txt url (for fuzzy matching)
-// -
-// Default: ""
-sm_dlmap_maplist_url ""
-
-// extra subdirectories to check when downloading (space separated)
-// -
-// Default: ""
-sm_dlmap_subdirs ""
-
-// map download url
-// -
-// Default: ""
-sm_dlmap_url ""
-EOF
-
-mkdir -p addons/sourcemod/plugins
-curl -L -o serverwhitelistadvanced.zip \
-     https://github.com/FemboyKZ/sm-server-whitelist-advanced/releases/download/1.6.2/serverwhitelistadvanced-1.6.2.zip
-unzip serverwhitelistadvanced.zip 'addons/sourcemod/plugins/*'
-mkdir -p addons/sourcemod/configs/whitelist
-cat <<EOF > addons/sourcemod/configs/whitelist/whitelist.txt
-STEAM_1:0:16599865 ; Chuckles
-STEAM_1:1:21505111 ; Sikari
-STEAM_1:0:79208088 ; zer0.k
-STEAM_1:0:79951525 ; Ruto
-STEAM_1:1:120613467 ; makis
-STEAM_1:1:161178172 ; AlphaKeks
-STEAM_1:1:553718349 ; Reeed
-EOF
-mkdir -p cfg/sourcemod
-cat <<EOF > cfg/sourcemod/serverwhitelistadvanced.cfg
-// This file was auto-generated by SourceMod (v1.12.0.7253)
-// ConVars for plugin "serverwhitelistadvanced.smx"
-
-
-// Enable server whitelist
-// -
-// Default: "1"
-// Minimum: "0.000000"
-// Maximum: "1.000000"
-whitelist "0"
-
-// Allows people to join if they are not whitelisted under a certain condition. 0=Nop, 1=Someone is whitelisted, 2=An admin is present (_immunity needed), 3=Someone is present.
-// -
-// Default: "0"
-// Minimum: "0.000000"
-// Maximum: "3.000000"
-whitelist_autovouch "0"
-
-// Minimum time in seconds before a non-whitelisted first-time-in-map-user is kicked if no voucher (defined by _autovouch value) are present; to give time to voucher to join on mapchange. It is a minimum if Steam groups are used; if not it is a normal timeo
-// -
-// Default: "2.0"
-// Minimum: "0.100000"
-whitelist_autovouch_mintimeout "2.0"
-
-// File name to use for the whitelist, in the sourcemod/configs/whitelist/ folder. Can't use '/' or '\'. With extension.
-// -
-// Default: "whitelist.txt"
-whitelist_filename "whitelist.txt"
-
-// Automatically grant admins access. Required for _autovouch = 2.
-// -
-// Default: "1"
-// Minimum: "0.000000"
-// Maximum: "1.000000"
-whitelist_immunity "0"
-
-// Message to show to kicked clients.
-// -
-// Default: "You are not in the server's whitelist"
-whitelist_kickmessage "You are not in the server's whitelist"
-
-// Log failed-attempts to join server. 0=No, 1=Yes (always), 2=Yes (not after first time)
-// -
-// Default: "1.0"
-whitelist_log "1.0"
-
-// When removing someone from whitelist, update the .txt right away (expensive operation if big whitelist) ? 0= On map end. Def. 1=Yes.
-// -
-// Default: "1"
-// Minimum: "0.000000"
-// Maximum: "1.000000"
-whitelist_removeinstant "1"
-
-// Also read SteamGroupIds from whitelist file ? 0=No. 1=Yes (SteamTools). 2=Yes (SteamWorks). Can fallback.
-// -
-// Default: "2"
-// Minimum: "0.000000"
-// Maximum: "2.000000"
-whitelist_steamgroup "0"
-
-// Maximum number of retry to do before saying someone is blacklisted. 'whitelist_steamgroup_timeout' seconds between each retry. ; Put '-1' for unlimited retry. Doing so should make people not be kicked in case Valve never respond (i.e. they have technical
-// -
-// Default: "-1"
-// Minimum: "-1.000000"
-whitelist_steamgroup_retry "-1"
-
-// Time (in seconds) before re-requesting SteamGroups status from Valve's server (sometimes Valve doesn't answer).
-// -
-// Default: "0.34"
-// Minimum: "0.010000"
-whitelist_steamgroup_timeout "0.34"
-
-// Use whitelist_kickmessage through tidykick ? 0=No (Default; need TidyKick). 1=Yes.
-// -
-// Default: "0"
-// Minimum: "0.000000"
-// Maximum: "1.000000"
-whitelist_tidykick "0"
-EOF
-
-curl -L -o movementapi.zip \
-     https://github.com/FemboyKZ/MovementAPI/releases/download/2.5.0/movementapi-2.5.0.zip
-unzip movementapi.zip 'addons/sourcemod/gamedata/*' \
-      'addons/sourcemod/plugins/*'
-rm movementapi.zip
-
-curl -L -o gokz.zip \
-     https://github.com/KZGlobalTeam/gokz/releases/download/3.7.0/GOKZ-v3.7.0.zip
-unzip gokz.zip 'addons/sourcemod/gamedata/*' 'addons/sourcemod/plugins/*' \
-      'addons/sourcemod/translations/*' 'cfg/*' 'maps/*' 'materials/*' \
-      'models/*' 'sound/*'
-rm gokz.zip
-mkdir -p cfg/sourcemod/gokz
-cat <<EOF > cfg/sourcemod/gokz/options.cfg
-"Options"
-{
-	"GOKZ - VB Indicators"
-	{
-		"default"	"1"
-	}
-	"GOKZ - Timer Button Zone Type"
-	{
-		"default"	"1"
-	}
-	"GOKZ - Tips"
-	{
-		"default"	"0"
-	}
-	"GOKZ HUD - Centre Panel"
-	{
-		"default"	"0"
-	}
-	"GOKZ HUD - Timer Text"
-	{
-		"default"	"3"
-	}
-	"GOKZ HUD - Dead Strafe"
-	{
-		"default"	"1"
-	}
-	"GOKZ HUD - Spec List Pos"
-	{
-		"default"	"0"
-	}
-	"GOKZ JS - Chat Report"
-	{
-		"default"	"2"
-	}
-	"GOKZ JS - Min Chat Broadcast"
-	{
-		"default"	"0"
-	}
-	"GOKZ Paint - Size"
-	{
-		"default"	"0"
-	}
-	"GOKZ QT - Checkpoint Volume"
-	{
-		"default"	"1"
-	}
-	"GOKZ QT - Teleport Volume"
-	{
-		"default"	"1"
-	}
-	"GOKZ QT - Timer Volume"
-	{
-		"default"	"3"
-	}
-	"GOKZ QT - Error Volume"
-	{
-		"default"	"1"
-	}
-	"GOKZ QT - Server Record Volum"
-	{
-		"default"	"3"
-	}
-	"GOKZ QT - World Record Volume"
-	{
-		"default"	"3"
-	}
-	"GOKZ QT - Jumpstats Volume"
-	{
-		"default"	"3"
-	}
-}
-EOF
-
-curl -L -o gokz-syncable-replays.zip \
-     https://github.com/misscatmint/gokz/releases/download/3.7.0-syncable-replays/GOKZ-v3.7.0-syncable-replays.zip
-unzip -o gokz-syncable-replays.zip 'addons/sourcemod/plugins/gokz-localdb.smx' \
-      addons/sourcemod/plugins/gokz-localranks.smx \
-      addons/sourcemod/plugins/gokz-replays.smx \
-      addons/sourcemod/translations/gokz-localranks.phrases.txt
-rm gokz-syncable-replays.zip
-
-curl -L -o globalapi.zip \
-     https://github.com/misscatmint/csgo-sm-globalapi/releases/download/v2.1.0/GlobalAPI-v2.1.0.zip
-unzip globalapi.zip 'addons/sourcemod/plugins/*'
-rm globalapi.zip
-
-mkdir -p addons/sourcemod/plugins
-curl -L -o addons/sourcemod/plugins/KZServerAdvisor.smx \
-     https://github.com/KZGlobalTeam/csgo-kz-server-advisor/releases/download/1.2.0/KZServerAdvisor-v1.2.0.smx
-
-mkdir -p addons/sourcemod/plugins
-curl --output-dir addons/sourcemod/plugins -L -O \
-     https://github.com/DevRuto/GOKZ-Scoreboard-Timer/releases/download/0.05/scoreboardtimer.smx
-
-curl -L -o bsppeek.zip \
-     https://github.com/jvnipers/bsp-peek/releases/download/1.6.1/bsp-peek-linux-sniper--mm-1.12--sm-1.12.zip
-unzip bsppeek.zip \
-      'bsp-peek-linux-sniper--mm-1.12--sm-1.12/addons/sourcemod/extensions/*' \
-      'bsp-peek-linux-sniper--mm-1.12--sm-1.12/addons/sourcemod/gamedata/*'
-cp -a bsp-peek-linux-sniper--mm-1.12--sm-1.12/addons .
-rm -r bsp-peek-linux-sniper--mm-1.12--sm-1.12
-rm bsppeek.zip
-
-curl -L -o movementhud.zip \
-     https://github.com/FemboyKZ/movementhud/releases/download/v3.0.9/movementhud-v3.0.9.zip
-unzip movementhud.zip 'addons/sourcemod/plugins/*'
-rm movementhud.zip
-mkdir -p cfg/sourcemod
-cat <<EOF > cfg/sourcemod/movementhud-defaults.cfg
-"MovementHUD-Defaults"
-{
-	"keys_mode"		"2"
-	"speed_mode"		"1"
-	"indicators_jb_enabled"	"1"
-	"indicators_cj_enabled"	"1"
-	"indicators_eb_enabled"	"1"
-	"indicators_px_enabled"	"1"
-	"indicators_ftg"	"1"
-	"indicators_crouch"	"1"
-	"distpred_mode"		"1"
-	"indicators_jb_color"	"255 255 0"
-}
-EOF
-
-mkdir -p addons/sourcemod/plugins
-curl -s -S --output-dir addons/sourcemod/plugins/ -L -O \
-     https://github.com/zer0k-z/showpos/releases/download/v0.0.2/showpos.smx
-
-curl -L -o distbug.tar.gz \
-     https://github.com/BadServersNet/sm-distbug/releases/download/v2.0.2/distbugfix-v2.0.2.tar.gz
-tar xvkf distbug.tar.gz ./addons/sourcemod/plugins
-rm distbug.tar.gz
-
-curl -L -o ztopwatch.tar.gz \
-     https://github.com/BadServersNet/sm-zone-stopwatch/releases/download/v1.0.3/zone-stopwatch-v1.0.3.tar.gz
-tar xvkf ztopwatch.tar.gz ./addons/sourcemod/plugins
-rm ztopwatch.tar.gz
-
-curl -L -o morestats.zip \
-     https://github.com/zer0k-z/more-stats/releases/download/v3.1.2/more-stats.zip
-unzip morestats.zip 'addons/sourcemod/plugins/*'
-rm morestats.zip
-
-mkdir -p addons/sourcemod/plugins
-curl -L -o addons/sourcemod/plugins/showtriggers.smx \
-     'https://www.sourcemod.net/vbcompiler.php?file_id=158717'
-
-curl -L -o nightvision.zip \
-     https://github.com/GAMMACASE/NightVision/releases/download/1.0.1/nightvision_1.0.1.zip
-unzip nightvision.zip 'addons/sourcemod/configs/*' \
-      'addons/sourcemod/plugins/*' 'addons/sourcemod/translations/*' \
-      'materials/*'
-rm nightvision.zip
-
-mkdir -p addons/sourcemod/plugins
-curl --output-dir addons/sourcemod/plugins -L -O \
-     https://github.com/misscatmint/its-too-dark/releases/download/1.0/its-too-dark.smx
-
-curl -L -o missedby.zip \
-     https://github.com/FemboyKZ/sm-missedby/releases/download/1.0.3/fkz-missedby.zip
-unzip missedby.zip 'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*'
-rm missedby.zip
-
-curl -L -o vanillatier.tar.gz \
-     https://github.com/BadServersNet/sm-vanilla-tier/releases/download/v1.0.4/vanilla-tier-v1.0.4.tar.gz
-tar xvkf vanillatier.tar.gz ./addons/sourcemod/plugins
-rm vanillatier.tar.gz
-
-curl -L -o ljroom.zip \
-     https://github.com/misscatmint/gokz-ljroom-tp/releases/download/2.3.2/gokz-ljroom-tp-2.3.2.zip
-unzip ljroom.zip 'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*'
-rm ljroom.zip
-
-curl -L -o ptah.zip \
-     https://github.com/komashchenko/PTaH/releases/download/v1.1.4/linux.zip
-unzip ptah.zip 'addons/sourcemod/extensions/*' 'addons/sourcemod/gamedata/*'
-rm ptah.zip
-
-curl -L -o weapons.zip \
-     https://github.com/kgns/weapons/releases/download/v1.7.8/weapons-v1.7.8.zip
-unzip weapons.zip 'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*' \
-      'addons/sourcemod/translations/*' 'cfg/*'
-rm weapons.zip
+sed -i '$i\\t"MinidumpAccount"\t""' addons/sourcemod/configs/core.cfg
 sed -i -E 's/^sm_weapons_chat_prefix "\[oyunhost\.net\]"$/sm_weapons_chat_prefix ""/' \
     cfg/sourcemod/weapons.cfg
-
-curl -L -o gloves.zip \
-     https://github.com/kgns/gloves/releases/download/v1.0.5/gloves-v1.0.5.zip
-unzip gloves.zip 'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*' \
-      'addons/sourcemod/translations/*' 'cfg/*'
-rm gloves.zip
 sed -i -E 's/^sm_gloves_chat_prefix "\[oyunhost\.net\]"$/sm_gloves_chat_prefix ""/' \
     cfg/sourcemod/gloves.cfg
+
+# Our own config files, laid over everything else (overlay/ mirrors /build).
+cp -a /overlay/. /build/
+
+# Changes whenever anything above does; entrypoint.sh compares against it to
+# decide whether to update an existing /data volume.
+find /build -type f ! -name .version -print0 | LC_ALL=C sort -z |
+    xargs -0 sha256sum | sha256sum | cut -d' ' -f1 > /build/.version
