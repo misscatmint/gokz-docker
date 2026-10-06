@@ -72,7 +72,8 @@ unpack -o https://github.com/misscatmint/gokz/releases/download/3.7.0-syncable-r
     addons/sourcemod/plugins/gokz-localdb.smx \
     addons/sourcemod/plugins/gokz-localranks.smx \
     addons/sourcemod/plugins/gokz-replays.smx \
-    addons/sourcemod/translations/gokz-localranks.phrases.txt
+    addons/sourcemod/translations/gokz-localranks.phrases.txt \
+    addons/sourcemod/translations/gokz-replays.phrases.txt
 unpack https://github.com/misscatmint/csgo-sm-globalapi/releases/download/v2.1.0/GlobalAPI-v2.1.0.zip \
     'addons/sourcemod/plugins/*'
 fetch addons/sourcemod/plugins/KZServerAdvisor.smx \
