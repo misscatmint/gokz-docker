@@ -69,6 +69,7 @@ unpack https://github.com/KZGlobalTeam/gokz/releases/download/3.7.0/GOKZ-v3.7.0.
     'addons/sourcemod/translations/*' 'cfg/*' 'maps/*' 'materials/*' \
     'models/*' 'sound/*'
 unpack -o https://github.com/misscatmint/gokz/releases/download/3.7.0-syncable-replays/GOKZ-v3.7.0-syncable-replays.zip \
+    addons/sourcemod/plugins/gokz-hud.smx \
     addons/sourcemod/plugins/gokz-localdb.smx \
     addons/sourcemod/plugins/gokz-localranks.smx \
     addons/sourcemod/plugins/gokz-replays.smx \
