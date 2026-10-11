@@ -14,7 +14,9 @@ ENV APIKEY= \
     MINIDUMPACCOUNT= \
     NAME= \
     PASSWORD= \
+    PGID=1000 \
     PORT=27015 \
+    PUID=1000 \
     SERVERCFG=server.cfg
 
 RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \

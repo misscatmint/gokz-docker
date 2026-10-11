@@ -2,6 +2,13 @@
 
 set -Eeuo pipefail
 
+if [[ $(id -u) == 0 && $PUID != 0 ]]; then
+    mkdir -p "$HOME/csgo/cfg" "$HOME/csgo/addons/sourcemod/configs"
+    chown -c "$PUID:$PGID" "$HOME" "$HOME/csgo" "$HOME/csgo/cfg" "$HOME/csgo/addons" \
+        "$HOME/csgo/addons/sourcemod" "$HOME/csgo/addons/sourcemod/configs"
+    exec setpriv --reuid="$PUID" --regid="$PGID" --clear-groups "$0" "$@"
+fi
+
 # Downloads to a temp file first so a failed transfer never replaces a good file.
 download() {
     local url=$1 dest=$2 tmp
