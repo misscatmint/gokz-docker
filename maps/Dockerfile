@@ -5,7 +5,7 @@ ARG SUPERCRONIC_SHA1SUM=e63c11a9726b775a6a11801e81af4f3fb926aa68
 ENV ARIA2URL=http://csgo-kz-maps.badservers.net/downloads/raw-maps.aria2.txt \
     PGID=1000 \
     PUID=1000
-RUN apk add --no-cache aria2 curl setpriv && \
+RUN apk add --no-cache aria2 curl setpriv tzdata && \
     curl -fsSL -o /usr/local/bin/supercronic "$SUPERCRONIC_URL" && \
     echo "${SUPERCRONIC_SHA1SUM}  /usr/local/bin/supercronic" | sha1sum -c - && \
     chmod +x /usr/local/bin/supercronic
