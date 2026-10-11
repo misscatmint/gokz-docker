@@ -24,15 +24,16 @@ unpack() {
         esac
     done
     local url=$1; shift
-    local archive=${url##*/} members=() m
+    local archive members=() m
     for m in "$@"; do members+=("$prefix$m"); done
 
+    archive=$(mktemp)
     fetch "$archive" "$url"
-    case $archive in
-        *.zip)    unzip -q "${overwrite[@]}" "$archive" "${members[@]}" </dev/null ;;
-        *.tar.gz) tar xkf "$archive" "${members[@]}" ;;
-        *)        echo "unpack: unsupported archive $archive" >&2; return 1 ;;
-    esac
+    if [[ $(head -c2 "$archive") == PK ]]; then
+        unzip -q "${overwrite[@]}" "$archive" "${members[@]}" </dev/null
+    else
+        tar xkf "$archive" "${members[@]}"
+    fi
     rm "$archive"
     if [[ -n $prefix ]]; then
         cp -a "$prefix." . && rm -r "${prefix%%/*}"
@@ -64,17 +65,10 @@ unpack https://github.com/FemboyKZ/sm-server-whitelist-advanced/releases/downloa
     'addons/sourcemod/plugins/*'
 unpack https://github.com/FemboyKZ/MovementAPI/releases/download/2.5.0/movementapi-2.5.0.zip \
     'addons/sourcemod/gamedata/*' 'addons/sourcemod/plugins/*'
-unpack https://github.com/KZGlobalTeam/gokz/releases/download/3.7.0/GOKZ-v3.7.0.zip \
+unpack "$GOKZ" \
     'addons/sourcemod/gamedata/*' 'addons/sourcemod/plugins/*' \
     'addons/sourcemod/translations/*' 'cfg/*' 'maps/*' 'materials/*' \
     'models/*' 'sound/*'
-unpack -o https://github.com/misscatmint/gokz/releases/download/3.7.0-syncable-replays/GOKZ-v3.7.0-syncable-replays.zip \
-    addons/sourcemod/plugins/gokz-hud.smx \
-    addons/sourcemod/plugins/gokz-localdb.smx \
-    addons/sourcemod/plugins/gokz-localranks.smx \
-    addons/sourcemod/plugins/gokz-replays.smx \
-    addons/sourcemod/translations/gokz-localranks.phrases.txt \
-    addons/sourcemod/translations/gokz-replays.phrases.txt
 unpack https://github.com/misscatmint/csgo-sm-globalapi/releases/download/v2.1.0/GlobalAPI-v2.1.0.zip \
     'addons/sourcemod/plugins/*'
 fetch addons/sourcemod/plugins/KZServerAdvisor.smx \

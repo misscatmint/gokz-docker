@@ -23,6 +23,7 @@ RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
     echo steam steam/license note "" | debconf-set-selections && \
     apt-get install -y netcat steamcmd tini && \
     ln -s /usr/games/steamcmd /usr/bin/steamcmd
+ARG GOKZ=https://github.com/misscatmint/gokz/releases/download/3.6.4-srs1/GOKZ-v3.6.4-srs1.zip
 RUN --mount=type=bind,source=build.sh,target=/build.sh \
     --mount=type=bind,source=overlay,target=/overlay /build.sh
 COPY --chmod=755 check.sh entrypoint.sh run.sh /

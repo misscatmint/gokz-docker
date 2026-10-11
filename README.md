@@ -135,3 +135,23 @@ directory and there's nothing else to do.
   data directories into the remapped UID range.
 - **`docker exec`** runs as root by default. Use `docker exec -u 1000:1000 ...`
   for anything that creates or edits files (`/maps.sh` handles this itself).
+
+## GOKZ build
+
+The image bundles
+[GOKZ 3.6.4-srs1](https://github.com/misscatmint/gokz/releases/tag/3.6.4-srs1)
+by default. To use another release, set the `GOKZ` build argument to its
+release zip:
+
+```yaml
+  gokz:
+    build:
+      context: ./gokz-docker
+      args:
+        GOKZ: https://github.com/misscatmint/gokz/releases/download/3.7.0-srs1/GOKZ-v3.7.0-srs1.zip
+```
+
+The zip must have the same layout as an official GOKZ release. Use a URL that
+points to one fixed release: Docker reuses its cached build while the URL stays
+the same, even if the file behind it changes. Downgrading on an existing
+`/data` volume isn't guaranteed to work.
