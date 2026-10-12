@@ -16,7 +16,7 @@ ENV DLMAP="https://csgo-kz-maps.badservers.net/maps" \
 
 RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
     echo steam steam/license note "" | debconf-set-selections && \
-    apt-get install -y netcat steamcmd tini && \
+    apt-get install -y steamcmd tini && \
     ln -s /usr/games/steamcmd /usr/bin/steamcmd
 ARG GOKZ=https://github.com/misscatmint/gokz/releases/download/3.6.4-srs1/GOKZ-v3.6.4-srs1.zip \
     GOKZ_SHA256=432268d04751d42be4797970663c28c10c3edbb1f37bcbedae6bcf7e733fa838 \
