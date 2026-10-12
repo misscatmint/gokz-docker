@@ -17,6 +17,13 @@ todo=$(mktemp)
 have=$(mktemp)
 trap 'rm -f "$list" "$todo" "$have"' EXIT
 curl -fsSL -o "$list" "$ARIA2URL"
+# Paths in the list decide what gets written (sync) and deleted (verify);
+# refuse the whole list if any of them point outside ./maps.
+if grep -E '^ *(dir|out)=' "$list" |
+    grep -vqE '^ *dir=\./maps(/[^/.][^/]*)*/?$|^ *out=[^/.][^/]*$'; then
+    echo "maps.sh: map list has paths outside ./maps, not syncing" >&2
+    exit 1
+fi
 
 case ${1:-sync} in
 sync)

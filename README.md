@@ -103,8 +103,13 @@ Example `compose.yaml`:
     build: ./gokz-docker/maps
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./gokz/data:/data
+      - ./gokz/data/csgo/maps:/data/csgo/maps
 ```
+
+The container only gets the maps directory, so it can't touch plugins or
+configs. Start `gokz` once before adding this service, or create the directory
+yourself (`mkdir -p gokz/data/csgo/maps && chown 1000:1000 gokz/data/csgo/maps`).
+Otherwise Docker creates it owned by root and neither container can write to it.
 
 Run a sync right away:
 
@@ -145,8 +150,8 @@ argument, so you can swap in another release or your own fork.
 
 ### GOKZ 3.7.x
 
-GOKZ 3.7.x needs newer SteamWorks and GlobalAPI builds. Set all four arguments
-together:
+GOKZ 3.7.x needs newer SteamWorks and GlobalAPI builds. Set all of these
+arguments together:
 
 ```yaml
   gokz:
@@ -154,9 +159,12 @@ together:
       context: ./gokz-docker
       args:
         GOKZ: https://github.com/misscatmint/gokz/releases/download/3.7.0-srs1/GOKZ-v3.7.0-srs1.zip
+        GOKZ_SHA256: 645ac99dfadcb45a347b5c617f1db9709105fa36a7c53bfb84d19334a945d587
         STEAMWORKS: https://github.com/alliedmodders/SM-SteamWorks/releases/download/v1.2.167/SteamWorks-1.2.167-sm1.12-linux.tar.gz
+        STEAMWORKS_SHA256: af5d01b170b866f9e377d3739bded46138044cc54fb7c381ba77d34e07bb783c
         STEAMWORKS_PREFIX: ""
         GLOBALAPI: https://github.com/misscatmint/csgo-sm-globalapi/releases/download/v2.1.0/GlobalAPI-v2.1.0.zip
+        GLOBALAPI_SHA256: a7f16bb752ba836916e016e291fde41beaf1fe0022fb2d0032cc488ffe7cf72b
 ```
 
 `STEAMWORKS_PREFIX` is the folder the SteamWorks archive keeps its files in:
@@ -166,7 +174,7 @@ archive`.
 
 ### Notes
 
-The GOKZ zip must have the same layout as an official GOKZ release. Use URLs
-that point to one fixed release: Docker reuses its cached build while a URL
-stays the same, even if the file behind it changes. Downgrading on an existing
-`/data` volume isn't guaranteed to work.
+The GOKZ zip must have the same layout as an official GOKZ release. Every URL
+needs its matching `_SHA256` (get it with `curl -fsSL URL | sha256sum`), and the
+build fails if the download doesn't match, so point them at one fixed release.
+Downgrading on an existing `/data` volume isn't guaranteed to work.

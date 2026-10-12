@@ -1,4 +1,4 @@
-FROM registry.gitlab.steamos.cloud/steamrt/sniper/sdk
+FROM registry.gitlab.steamos.cloud/steamrt/sniper/sdk:3.0.20260805.254768@sha256:1c33c507bc75d012e77df5727f93b0d5b8c3f7c8d4142ba5f7a16882cc92e014
 ENV APIKEY= \
     AUTHKEY= \
     DLMAP="https://csgo-kz-maps.badservers.net/maps" \
@@ -24,9 +24,12 @@ RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
     apt-get install -y netcat steamcmd tini && \
     ln -s /usr/games/steamcmd /usr/bin/steamcmd
 ARG GOKZ=https://github.com/misscatmint/gokz/releases/download/3.6.4-srs1/GOKZ-v3.6.4-srs1.zip \
+    GOKZ_SHA256=432268d04751d42be4797970663c28c10c3edbb1f37bcbedae6bcf7e733fa838 \
     STEAMWORKS=https://github.com/KyleSanderson/SteamWorks/releases/download/1.2.3c/package-lin.tgz \
+    STEAMWORKS_SHA256=6679e6dfd19d4c78a71d224ff3f7d72d9becbc256082ed4bce85cbaa1e012713 \
     STEAMWORKS_PREFIX=package \
-    GLOBALAPI=https://bitbucket.org/kztimerglobalteam/globalapi-smplugin/downloads/GlobalAPI-v2.0.4.zip
+    GLOBALAPI=https://bitbucket.org/kztimerglobalteam/globalapi-smplugin/downloads/GlobalAPI-v2.0.4.zip \
+    GLOBALAPI_SHA256=a986650e1fead3a438075aeaa1480f77f8033d048409de49d245bc54f34600d9
 RUN --mount=type=bind,source=build.sh,target=/build.sh \
     --mount=type=bind,source=overlay,target=/overlay /build.sh
 COPY --chmod=755 check.sh entrypoint.sh run.sh /
