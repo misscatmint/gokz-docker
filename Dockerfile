@@ -1,4 +1,4 @@
-FROM registry.gitlab.steamos.cloud/steamrt/sniper/sdk:3.0.20260805.254768@sha256:1c33c507bc75d012e77df5727f93b0d5b8c3f7c8d4142ba5f7a16882cc92e014
+FROM registry.gitlab.steamos.cloud/steamrt/sniper/platform:3.0.20260928.262393@sha256:44639bcc859d574afab6bcae5f128139ef075167145eee3f757e36e8969a04e0
 ENV FLAGS= \
     HOME=/data \
     MAP=kz_hikari_od \
@@ -10,7 +10,7 @@ ENV FLAGS= \
 
 RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
     echo steam steam/license note "" | debconf-set-selections && \
-    apt-get install -y steamcmd tini && \
+    apt-get install -y rsync steamcmd tini unzip && \
     ln -s /usr/games/steamcmd /usr/bin/steamcmd
 ARG GOKZ=https://github.com/misscatmint/gokz/releases/download/3.6.4-srs1/GOKZ-v3.6.4-srs1.zip \
     GOKZ_SHA256=432268d04751d42be4797970663c28c10c3edbb1f37bcbedae6bcf7e733fa838 \
