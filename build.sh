@@ -57,7 +57,7 @@ fetch addons/sourcemod/plugins/itemcrashfix.smx \
       https://github.com/misscatmint/itemcrashfix/releases/download/0.1/itemcrashfix.smx
 fetch addons/sourcemod/plugins/CommandAliases.smx \
       https://bitbucket.org/Sikarii/sm-commandaliases/downloads/CommandAliases-latest.smx
-unpack https://github.com/BadServersNet/sm-steamworks/releases/download/v1.2.168/SteamWorks-1.2.168-sm1.12-linux.tar.gz \
+unpack ${STEAMWORKS_PREFIX:+-s "$STEAMWORKS_PREFIX"} "$STEAMWORKS" \
     addons/sourcemod/extensions
 fetch addons/sourcemod/plugins/dlmap.smx \
       https://github.com/misscatmint/sm-dlmap/releases/download/0.5/dlmap.smx
@@ -69,7 +69,7 @@ unpack "$GOKZ" \
     'addons/sourcemod/gamedata/*' 'addons/sourcemod/plugins/*' \
     'addons/sourcemod/translations/*' 'cfg/*' 'maps/*' 'materials/*' \
     'models/*' 'sound/*'
-unpack https://github.com/misscatmint/csgo-sm-globalapi/releases/download/v2.1.0/GlobalAPI-v2.1.0.zip \
+unpack "$GLOBALAPI" \
     'addons/sourcemod/plugins/*'
 fetch addons/sourcemod/plugins/KZServerAdvisor.smx \
       https://github.com/KZGlobalTeam/csgo-kz-server-advisor/releases/download/1.2.0/KZServerAdvisor-v1.2.0.smx

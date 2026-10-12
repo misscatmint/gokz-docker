@@ -140,8 +140,13 @@ directory and there's nothing else to do.
 
 The image bundles
 [GOKZ 3.6.4-srs1](https://github.com/misscatmint/gokz/releases/tag/3.6.4-srs1)
-by default. To use another release, set the `GOKZ` build argument to its
-release zip:
+along with the SteamWorks and GlobalAPI versions it needs. Each one is a build
+argument, so you can swap in another release or your own fork.
+
+### GOKZ 3.7.x
+
+GOKZ 3.7.x needs newer SteamWorks and GlobalAPI builds. Set all four arguments
+together:
 
 ```yaml
   gokz:
@@ -149,9 +154,19 @@ release zip:
       context: ./gokz-docker
       args:
         GOKZ: https://github.com/misscatmint/gokz/releases/download/3.7.0-srs1/GOKZ-v3.7.0-srs1.zip
+        STEAMWORKS: https://github.com/alliedmodders/SM-SteamWorks/releases/download/v1.2.167/SteamWorks-1.2.167-sm1.12-linux.tar.gz
+        STEAMWORKS_PREFIX: ""
+        GLOBALAPI: https://github.com/misscatmint/csgo-sm-globalapi/releases/download/v2.1.0/GlobalAPI-v2.1.0.zip
 ```
 
-The zip must have the same layout as an official GOKZ release. Use a URL that
-points to one fixed release: Docker reuses its cached build while the URL stays
-the same, even if the file behind it changes. Downgrading on an existing
+`STEAMWORKS_PREFIX` is the folder the SteamWorks archive keeps its files in:
+`package` for the default build, and empty for the one above. If you leave it
+out, the build fails with `package/addons/sourcemod/extensions: Not found in
+archive`.
+
+### Notes
+
+The GOKZ zip must have the same layout as an official GOKZ release. Use URLs
+that point to one fixed release: Docker reuses its cached build while a URL
+stays the same, even if the file behind it changes. Downgrading on an existing
 `/data` volume isn't guaranteed to work.
