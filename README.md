@@ -59,7 +59,6 @@ setting yourself in your config files instead.
 | `PORT` | `27015` | Game port (TCP and UDP) |
 | `SERVERCFG` | `server.cfg` | Server config file in `csgo/cfg` |
 | `FLAGS` | | Extra srcds command-line options (e.g., `-nomaster`) |
-| `MINIDUMPACCOUNT` | | SteamID64 for Accelerator crash report uploads |
 | `FASTDL` | badservers.net FastDL | Client download URL (`sv_downloadurl`) |
 | `DLMAP` | badservers.net maps | Where `!dlmap` downloads maps from |
 | `DLMAPLIST` | badservers.net map list | Map list `!dlmap` uses for fuzzy matching |
@@ -144,6 +143,25 @@ Delete maps that fail their checksum, so the next sync downloads them again:
 ```sh
 docker exec gokz-maps /maps.sh verify
 ```
+
+## Crash dumps
+
+When srcds crashes, the next start moves the crash dump into
+`gokz/data/crashdumps/`. Each `.dmp` has a `.dmp.txt` next to it with the map,
+command line, and recent console output, which often points at the culprit.
+Nothing is uploaded anywhere.
+
+To see the stack traces, use
+[minidump-stackwalk](https://github.com/rust-minidump/rust-minidump/tree/main/minidump-stackwalk):
+
+```sh
+cargo install minidump-stackwalk
+minidump-stackwalk gokz/data/crashdumps/<file>.dmp
+```
+
+Frames show up as module and offset (e.g. `server.so + 0x1a2b3c`). Plugin
+(SourcePawn) frames aren't named. Dumps contain the server's memory, including
+your API keys, so don't share them publicly.
 
 ## Permissions
 

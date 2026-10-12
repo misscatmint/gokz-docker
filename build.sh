@@ -154,7 +154,6 @@ mv addons/sourcemod/plugins/funvotes.smx addons/sourcemod/plugins/disabled/
 mv addons/sourcemod/plugins/playercommands.smx addons/sourcemod/plugins/disabled/
 sed -i -E 's/("FollowCSGOServerGuidelines"[[:space:]]+)"[^"]+"/\1"no"/' \
     addons/sourcemod/configs/core.cfg
-sed -i '$i\\t"MinidumpAccount"\t""' addons/sourcemod/configs/core.cfg
 sed -i -E 's/^sm_weapons_chat_prefix "\[oyunhost\.net\]"$/sm_weapons_chat_prefix ""/' \
     cfg/sourcemod/weapons.cfg
 sed -i -E 's/^sm_gloves_chat_prefix "\[oyunhost\.net\]"$/sm_gloves_chat_prefix ""/' \

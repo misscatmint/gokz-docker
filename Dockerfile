@@ -9,7 +9,6 @@ ENV DLMAP="https://csgo-kz-maps.badservers.net/maps" \
     MAPCMD=map \
     MAPPOOL="https://csgo-kz-maps.badservers.net/configs/cfg/sourcemod/gokz/gokz-localranks-mappool.cfg" \
     MAXPLAYERS=10 \
-    MINIDUMPACCOUNT= \
     NAME= \
     PORT=27015 \
     SERVERCFG=server.cfg

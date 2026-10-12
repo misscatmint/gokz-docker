@@ -73,8 +73,6 @@ sed -i -E 's#^appID=.*$#appID=4465480#' "$HOME/csgo/steam.inf"
 
 set_cvar "$HOME/csgo/cfg/$SERVERCFG" hostname "$NAME"
 set_cvar "$HOME/csgo/cfg/$SERVERCFG" sv_downloadurl "$FASTDL"
-set_cvar "$HOME/csgo/addons/sourcemod/configs/core.cfg" '"MinidumpAccount"' \
-         "$MINIDUMPACCOUNT"
 set_cvar "$HOME/csgo/cfg/sourcemod/dlmap.cfg" sm_dlmap_url "$DLMAP"
 set_cvar "$HOME/csgo/cfg/sourcemod/dlmap.cfg" sm_dlmap_maplist_url "$DLMAPLIST"
 set_cvar "$HOME/csgo/cfg/sourcemod/dlmap.cfg" sm_dlmap_subdirs "$DLMAPSUBDIRS"
@@ -99,6 +97,13 @@ if [[ "$MAPCMD" == "map" && -n "$DLMAP" && ! -f "$HOME/csgo/maps/$MAP.bsp" ]]
 then
     download "$DLMAP/$MAP.bsp" "$HOME/csgo/maps/$MAP.bsp"
     download "$DLMAP/$MAP.nav" "$HOME/csgo/maps/$MAP.nav"
+fi
+
+# Accelerator uploads, then deletes, every dump it finds when srcds starts.
+dumps=$HOME/csgo/addons/sourcemod/data/dumps
+if [[ -d $dumps ]]; then
+    mkdir -p "$HOME/crashdumps"
+    find "$dumps" -maxdepth 1 -name '*.dmp*' -exec mv -t "$HOME/crashdumps" {} +
 fi
 
 exec "$@"
