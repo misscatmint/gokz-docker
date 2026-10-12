@@ -13,6 +13,8 @@ services:
     stdin_open: true
     tty: true
     build: ./gokz-docker
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
     environment:
       NAME: My KZ Server
       MAP: kz_vnl_crimdaughter
@@ -23,11 +25,14 @@ services:
       - ./gokz/etc/addons/sourcemod/configs:/data/csgo/addons/sourcemod/configs
       - ./gokz/etc/cfg:/data/csgo/cfg
     ports:
-      - 27015:27015/tcp
       - 27015:27015/udp
+      - 127.0.0.1:27015:27015/tcp  # RCON only; drop 127.0.0.1: to reach it remotely
 ```
 
 ```sh
+mkdir -p gokz/data/csgo/cfg gokz/data/csgo/addons/sourcemod/configs \
+         gokz/data/csgo/maps gokz/etc/cfg gokz/etc/addons/sourcemod/configs
+sudo chown -R 1000:1000 gokz    # skip on rootless Docker, see Permissions
 docker compose up -d
 docker attach gokz    # server console (detach with Ctrl-P Ctrl-Q)
 ```
@@ -48,22 +53,38 @@ setting yourself in your config files instead.
 | Variable | Default | Description |
 | --- | --- | --- |
 | `NAME` | | Server name (`hostname`) |
-| `PASSWORD` | | Server password (`sv_password`) |
 | `MAP` | `kz_hikari_od` | Starting map (downloaded automatically if missing) |
 | `MAPCMD` | `map` | Command used to load the starting map (e.g., `host_workshop_map`) |
 | `MAXPLAYERS` | `10` | Player slots |
 | `PORT` | `27015` | Game port (TCP and UDP) |
 | `SERVERCFG` | `server.cfg` | Server config file in `csgo/cfg` |
 | `FLAGS` | | Extra srcds command-line options (e.g., `-nomaster`) |
-| `APIKEY` | | GOKZ global API key |
-| `AUTHKEY` | | Steam Web API key (only needed to load workshop maps) |
 | `MINIDUMPACCOUNT` | | SteamID64 for Accelerator crash report uploads |
 | `FASTDL` | badservers.net FastDL | Client download URL (`sv_downloadurl`) |
 | `DLMAP` | badservers.net maps | Where `!dlmap` downloads maps from |
 | `DLMAPLIST` | badservers.net map list | Map list `!dlmap` uses for fuzzy matching |
 | `DLMAPSUBDIRS` | `reuploads` | Extra directories `!dlmap` checks |
 | `MAPPOOL` | badservers.net map pool | GOKZ local ranks map pool (empty to skip) |
-| `PUID` / `PGID` | `1000` | User and group the server runs as (see [Permissions](#permissions)) |
+
+### API keys
+
+Keys go in files on the data volume, so they never appear in your compose file
+or `docker inspect`. Each file holds just the key on one line:
+
+| Key | File (paths from the [example](#example-composeyaml)) |
+| --- | --- |
+| GOKZ global API key | `gokz/etc/cfg/sourcemod/globalapi-key.cfg` |
+| Steam Web API key (only needed to load workshop maps) | `gokz/data/csgo/webapi_authkey.txt` |
+
+Without the config mount, the first one is
+`gokz/data/csgo/cfg/sourcemod/globalapi-key.cfg`. Create them with an editor
+(not `echo`, which leaves the key in your shell history), make them readable
+only by the server, and restart the container:
+
+```sh
+chmod 600 gokz/etc/cfg/sourcemod/globalapi-key.cfg gokz/data/csgo/webapi_authkey.txt
+sudo chown 1000:1000 gokz/etc/cfg/sourcemod/globalapi-key.cfg gokz/data/csgo/webapi_authkey.txt  # skip on rootless Docker
+```
 
 ### Config files
 
@@ -101,15 +122,16 @@ Example `compose.yaml`:
     restart: unless-stopped
     cpus: 0.5
     build: ./gokz-docker/maps
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./gokz/data/csgo/maps:/data/csgo/maps
 ```
 
 The container only gets the maps directory, so it can't touch plugins or
-configs. Start `gokz` once before adding this service, or create the directory
-yourself (`mkdir -p gokz/data/csgo/maps && chown 1000:1000 gokz/data/csgo/maps`).
-Otherwise Docker creates it owned by root and neither container can write to it.
+configs. The setup commands above create it; if you skipped them, create it
+before starting this service.
 
 Run a sync right away:
 
@@ -125,21 +147,23 @@ docker exec gokz-maps /maps.sh verify
 
 ## Permissions
 
-Both containers start as root, take ownership of the directories they need,
-and then run as `PUID`:`PGID` (1000:1000 by default). Missing host directories
-are created and fixed for you, so set these to the owner of your data
-directory and there's nothing else to do.
+Both containers run as 1000:1000 and never as root, so they can't fix
+ownership for you. Every directory you mount, and every mount point inside
+`gokz/data`, has to exist and be writable by that user before the first start
+(the `mkdir` and `chown` in the [example](#example-composeyaml)). If Docker
+creates a missing one itself, root owns it and the server can't write to it.
 
-- **`user:` in compose** skips this entirely and runs as that user. `PUID` and
-  `PGID` are ignored, and you're responsible for directory ownership.
-- **To run as root**, set `PUID` and `PGID` to `0`. `user: "0:0"` doesn't do
-  this.
-- **Rootless Docker:** set `PUID` and `PGID` to `0`. Root inside the container
-  is your own user on the host, so your files stay owned by you.
+- **Different owner:** set `user: "UID:GID"` on both services to the owner of
+  your data directory.
+- **Rootless Docker:** set `user: "0:0"` on both services and skip the `chown`.
+  Root inside the container is your own user on the host, so it owns your files
+  without needing any capabilities, and `cap_drop: [ALL]` still applies.
 - **`userns-remap`:** add `userns_mode: host` to both services, or chown your
-  data directories into the remapped UID range.
-- **`docker exec`** runs as root by default. Use `docker exec -u 1000:1000 ...`
-  for anything that creates or edits files (`/maps.sh` handles this itself).
+  data directories to the remapped UID (the start of your subordinate UID range
+  plus 1000).
+- **Upgrading from `PUID`/`PGID`:** they're gone. If you set them to something
+  other than 1000, use `user:` instead; if you set them to `0` for rootless
+  Docker, use `user: "0:0"`.
 
 ## GOKZ build
 

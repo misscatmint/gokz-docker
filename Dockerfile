@@ -1,7 +1,5 @@
 FROM registry.gitlab.steamos.cloud/steamrt/sniper/sdk:3.0.20260805.254768@sha256:1c33c507bc75d012e77df5727f93b0d5b8c3f7c8d4142ba5f7a16882cc92e014
-ENV APIKEY= \
-    AUTHKEY= \
-    DLMAP="https://csgo-kz-maps.badservers.net/maps" \
+ENV DLMAP="https://csgo-kz-maps.badservers.net/maps" \
     DLMAPLIST="https://csgo-kz-maps.badservers.net/configs/maplist.txt" \
     DLMAPSUBDIRS="reuploads" \
     FASTDL="http://csgo-kz-maps.badservers.net/fastdl" \
@@ -13,10 +11,7 @@ ENV APIKEY= \
     MAXPLAYERS=10 \
     MINIDUMPACCOUNT= \
     NAME= \
-    PASSWORD= \
-    PGID=1000 \
     PORT=27015 \
-    PUID=1000 \
     SERVERCFG=server.cfg
 
 RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
@@ -33,6 +28,7 @@ ARG GOKZ=https://github.com/misscatmint/gokz/releases/download/3.6.4-srs1/GOKZ-v
 RUN --mount=type=bind,source=build.sh,target=/build.sh \
     --mount=type=bind,source=overlay,target=/overlay /build.sh
 COPY --chmod=755 check.sh entrypoint.sh run.sh /
+USER 1000:1000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
             CMD /check.sh

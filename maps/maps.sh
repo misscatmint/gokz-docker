@@ -3,10 +3,6 @@
 # maps.sh verify   delete maps that fail their checksum; the next sync re-fetches them
 set -eu
 
-if [ "$(id -u)" = 0 ] && [ "$PUID" != 0 ]; then
-    exec setpriv --reuid="$PUID" --regid="$PGID" --clear-groups "$0" "$@"
-fi
-
 [ -n "${LOCKED:-}" ] || exec env LOCKED=1 nice -n 19 ionice -c 3 "$0" "$@"
 exec 9>/tmp/maps.lock
 flock 9

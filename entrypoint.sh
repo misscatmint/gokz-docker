@@ -2,13 +2,6 @@
 
 set -Eeuo pipefail
 
-if [[ $(id -u) == 0 && $PUID != 0 ]]; then
-    mkdir -p "$HOME/csgo/cfg" "$HOME/csgo/addons/sourcemod/configs"
-    chown -c "$PUID:$PGID" "$HOME" "$HOME/csgo" "$HOME/csgo/cfg" "$HOME/csgo/addons" \
-        "$HOME/csgo/addons/sourcemod" "$HOME/csgo/addons/sourcemod/configs"
-    exec setpriv --reuid="$PUID" --regid="$PGID" --clear-groups "$0" "$@"
-fi
-
 # Downloads to a temp file first so a failed transfer never replaces a good file.
 download() {
     local url=$1 dest=$2 tmp
@@ -78,26 +71,13 @@ fi
 
 sed -i -E 's#^appID=.*$#appID=4465480#' "$HOME/csgo/steam.inf"
 
-if [[ -n "$AUTHKEY" ]]
-then
-    authkey="$(mktemp "$HOME/csgo/webapi_authkey.txt-XXXXXX")"
-    echo "$AUTHKEY" > "$authkey"
-    mv "$authkey" "$HOME/csgo/webapi_authkey.txt"
-fi
 set_cvar "$HOME/csgo/cfg/$SERVERCFG" hostname "$NAME"
-set_cvar "$HOME/csgo/cfg/$SERVERCFG" sv_password "$PASSWORD"
 set_cvar "$HOME/csgo/cfg/$SERVERCFG" sv_downloadurl "$FASTDL"
 set_cvar "$HOME/csgo/addons/sourcemod/configs/core.cfg" '"MinidumpAccount"' \
          "$MINIDUMPACCOUNT"
 set_cvar "$HOME/csgo/cfg/sourcemod/dlmap.cfg" sm_dlmap_url "$DLMAP"
 set_cvar "$HOME/csgo/cfg/sourcemod/dlmap.cfg" sm_dlmap_maplist_url "$DLMAPLIST"
 set_cvar "$HOME/csgo/cfg/sourcemod/dlmap.cfg" sm_dlmap_subdirs "$DLMAPSUBDIRS"
-if [[ -n "$APIKEY" ]]
-then
-    apikey="$(mktemp "$HOME/csgo/cfg/sourcemod/globalapi-key.cfg-XXXXXX")"
-    echo "$APIKEY" > "$apikey"
-    mv "$apikey" "$HOME/csgo/cfg/sourcemod/globalapi-key.cfg"
-fi
 
 maplist="$(mktemp "$HOME/csgo/maplist.txt-XXXXXX")"
 mapcycle="$(mktemp "$HOME/csgo/mapcycle.txt-XXXXXX")"
