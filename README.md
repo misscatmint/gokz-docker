@@ -221,3 +221,15 @@ The GOKZ zip must have the same layout as an official GOKZ release. Every URL
 needs its matching `_SHA256` (get it with `curl -fsSL URL | sha256sum`), and the
 build fails if the download doesn't match, so point them at one fixed release.
 Downgrading on an existing `/data` volume isn't guaranteed to work.
+
+## Development
+
+```sh
+make lint       # shellcheck and hadolint, run in Docker
+make build      # build both images, which checks every pinned download
+make check      # both of the above
+make outdated   # newer tags for the pinned base images (needs skopeo)
+```
+
+Plugins in `build.sh` aren't covered by `make outdated`; bump their URLs and
+hashes by hand.
