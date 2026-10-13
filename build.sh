@@ -147,7 +147,12 @@ unpack https://github.com/kgns/gloves/releases/download/v1.0.5/gloves-v1.0.5.zip
 # Adjustments to what was downloaded.
 
 rm addons/sourcemod/extensions/updater.ext.so
-rm addons/sourcemod/extensions/x64/updater.ext.so
+# The CS:GO server is 32-bit and Metamod and SourceMod only load the builds for
+# the running game, so nothing ever loads the 64-bit or other games' binaries.
+rm -r addons/metamod_x64.vdf addons/metamod/bin/linux64 addons/sourcemod/bin/x64 \
+    addons/sourcemod/bin/sourcemod_mm.x64.so addons/sourcemod/extensions/x64
+find addons/metamod/bin addons/sourcemod/bin addons/sourcemod/extensions \
+    -name '*.2.*.so' ! -name '*.2.csgo.so' -delete
 mv addons/sourcemod/plugins/basevotes.smx addons/sourcemod/plugins/disabled/
 mv addons/sourcemod/plugins/funcommands.smx addons/sourcemod/plugins/disabled/
 mv addons/sourcemod/plugins/funvotes.smx addons/sourcemod/plugins/disabled/
