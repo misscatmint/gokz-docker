@@ -12,7 +12,8 @@ download() {
 }
 
 # --out-format prints each file rsync creates or replaces (directories end in /).
-rsync_opts=(-a --omit-dir-times --delay-updates
+# --checksum compares contents, since every build gives downloaded files new mtimes.
+rsync_opts=(-a --checksum --omit-dir-times --delay-updates
             --out-format='gokz-docker: updated %n')
 
 # Files the admin moved into a disabled/ folder must not be copied back.
