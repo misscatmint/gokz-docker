@@ -119,8 +119,8 @@ fetch addons/sourcemod/plugins/KZServerAdvisor.smx \
 fetch addons/sourcemod/plugins/scoreboardtimer.smx \
       https://github.com/DevRuto/GOKZ-Scoreboard-Timer/releases/download/0.05/scoreboardtimer.smx \
       a1874c9524b318c1ef305ace5f3a446eff2d4af2ba3c430c250fe8f9326b3835
-unpack -s bsp-peek-linux-sniper--mm-1.12--sm-1.12 https://github.com/jvnipers/bsp-peek/releases/download/1.6.1/bsp-peek-linux-sniper--mm-1.12--sm-1.12.zip \
-                                                  c7ce8a76bece41f121e7e8d1582c2e96db104e8ed40db0817294d435f46c49da \
+unpack -s bsp-peek-steamrt3--mm-1.12--sm-1.12 https://github.com/jvnipers/bsp-peek/releases/download/1.6.2/bsp-peek-steamrt3--mm-1.12--sm-1.12.zip \
+                                              f749e57b812d6fa0462bfb1ac44138a31cdc8082d233ed6fc1350044b5316a3b \
     'addons/sourcemod/extensions/*' 'addons/sourcemod/gamedata/*'
 unpack https://github.com/FemboyKZ/movementhud/releases/download/v3.0.9/movementhud-v3.0.9.zip \
        97d18161ea3056df9cd182cd49cdba419a38b08b695bca15cdb2365eac0b057a \
