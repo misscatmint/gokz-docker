@@ -35,7 +35,7 @@ rm "$tree/addons/sourcemod/extensions/accelerator.autoload" \
 # Files the upgrade zip carries; configs are the server owner's, so never included.
 upgrade_files() {
     (cd "$tree" && find . -type f ! -path './cfg/*' ! -path './addons/sourcemod/configs/*' \
-         ! -name 'gokz-*.txt') | sed 's#^\./##' | LC_ALL=C sort
+         ! -path './gokz-*.txt') | sed 's#^\./##' | LC_ALL=C sort
 }
 
 upgrade_files > "$work/files.txt"
