@@ -3,12 +3,13 @@
 set -Eeuo pipefail
 
 # Downloads to a temp file first so a failed transfer never replaces a good file.
+# A transfer stuck under 1 KB/s for a minute fails, so a stalled server can't hang startup.
 download() {
     local url=$1 dest=$2 tmp
     mkdir -p "$(dirname "$dest")"
     tmp="$(mktemp "$dest-XXXXXX")"
     # mktemp creates the file as 600; give it the usual 644 like other files.
-    if curl -fsSL -o "$tmp" "$url"; then chmod 644 "$tmp"; mv "$tmp" "$dest"; else rm -f "$tmp"; fi
+    if curl -fsSL --speed-limit 1024 --speed-time 60 -o "$tmp" "$url"; then chmod 644 "$tmp"; mv "$tmp" "$dest"; else rm -f "$tmp"; fi
 }
 
 # --out-format prints each file rsync creates or replaces (directories end in /).
