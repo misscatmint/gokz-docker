@@ -13,9 +13,10 @@ lint:
 	$(LINT) $(SHELLCHECK) *.sh maps/*.sh tools/*.sh
 	$(LINT) --entrypoint /bin/hadolint $(HADOLINT) Dockerfile maps/Dockerfile
 
+# Downloads always rerun, since a cached layer would hide a dead link.
 build:
-	docker build -t gokz-docker:check $(COMPONENTS:%=--build-arg %) .
-	docker build -t gokz-docker-maps:check maps
+	docker build --no-cache-filter build -t gokz-docker:check $(COMPONENTS:%=--build-arg %) .
+	docker build --no-cache -t gokz-docker-maps:check maps
 
 bundle:
 	rm -rf dist/tree
