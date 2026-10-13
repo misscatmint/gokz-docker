@@ -5,6 +5,7 @@ set -Eeuo pipefail
 # Downloads to a temp file first so a failed transfer never replaces a good file.
 download() {
     local url=$1 dest=$2 tmp
+    mkdir -p "$(dirname "$dest")"
     tmp="$(mktemp "$dest-XXXXXX")"
     if curl -fsSL -o "$tmp" "$url"; then mv "$tmp" "$dest"; else rm -f "$tmp"; fi
 }
