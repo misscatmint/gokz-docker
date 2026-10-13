@@ -75,8 +75,8 @@ unpack https://github.com/alliedmodders/metamod-source/releases/download/1.12.0.
        d70aa8e6b8c88a2a6ff770aadc8e070e8a331ae4fb91a019f3dc19d352c04f5e
 unpack https://github.com/misscatmint/mm-autorestart/releases/download/3.0.1/autorestart-linux-mm-1.12.zip \
        f2caf4528a07c27c83a1c780641d799deb37fef3835ba81bc3781b13775b4802
-unpack https://github.com/alliedmodders/sourcemod/releases/download/1.12.0.7253/sourcemod-1.12.0-git7253-linux.tar.gz \
-       6bbcab989cda0ada83600d0dcb0f46affd16529b2b02ed2dba1b5baeaf02fdb4 \
+unpack https://github.com/alliedmodders/sourcemod/releases/download/1.12.0.7255/sourcemod-1.12.0-git7255-linux.tar.gz \
+       02be752ddc25d344a379800df9395a2847ab85b71acea9167fdca8163010d5b9 \
     --exclude=addons/sourcemod/scripting
 unpack -s linux https://builds.limetech.io/files/accelerator-2.6.0-git166-a4dbe6f-linux.zip \
                 01bd4a02b92ce129183e63a415dae45ca2555db23e2429fdfc99462364a7142e \
