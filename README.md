@@ -216,12 +216,41 @@ needs its matching `_SHA256` (get it with `curl -fsSL URL | sha256sum`), and the
 build fails if the download doesn't match, so point them at one fixed release.
 Downgrading on an existing `/data` volume isn't guaranteed to work.
 
+## Add-on zips
+
+For servers that can't run this image (e.g. hosts that only let you upload
+files), `make bundle` builds two zips in `dist/` with the same plugins and
+configs:
+
+- `gokz-<version>.zip`: everything, configs included, for a new server.
+- `gokz-<version>-upgrade.zip`: no configs, for updating a server that already
+  has them.
+
+Upload the zip into the server's `csgo` folder and extract it there. After an
+upgrade, delete the files listed in `gokz-removed.txt` (it also lists
+Accelerator, for servers that had it before). `gokz-sources.txt` lists where
+every component comes from.
+
+The zips leave out Accelerator, since outside the image nothing stops it from
+uploading crash dumps. The image's start-up tasks (map lists, map pool sync)
+don't happen either.
+
+The zips are built without Docker and need bash, curl, tar, unzip, and zip. To
+bundle another GOKZ build, set the same variables as the
+[build arguments](#gokz-37x), e.g. `GOKZ=… GOKZ_SHA256=… make bundle`.
+`make clean` deletes `dist/`.
+
+`make bundle` also updates `bundle/files.txt` and `bundle/removed.txt`. Commit
+them with each release; the next upgrade zip's removal list comes from them.
+
 ## Development
 
 ```sh
 make lint       # shellcheck and hadolint, run in Docker
 make build      # build both images, which checks every pinned download
+                # (takes the same GOKZ=… variables as make bundle)
 make check      # both of the above
+make bundle     # add-on zips in dist/ (see above); make clean removes them
 make outdated   # newer tags for the pinned base images (needs skopeo)
 ```
 

@@ -25,6 +25,8 @@ fetch() {
         { echo "fetch failed: $2" >&2; return 1; }
     echo "$3  $1" | sha256sum -c --quiet - ||
         { echo "checksum mismatch: $2" >&2; return 1; }
+    # tools/bundle.sh turns this into the add-on zips' source list.
+    echo "$2" >> "$out/sources.txt"
 }
 
 # unpack [-o] [-s PREFIX | -a] URL SHA256 [member...]

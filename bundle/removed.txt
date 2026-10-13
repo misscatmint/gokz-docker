@@ -1,0 +1,4 @@
+addons/sourcemod/extensions/accelerator.autoload
+addons/sourcemod/extensions/accelerator.ext.so
+addons/sourcemod/extensions/x64/accelerator.ext.so
+addons/sourcemod/gamedata/accelerator.games.txt
