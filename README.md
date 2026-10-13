@@ -253,8 +253,9 @@ make build      # build both images, which checks every pinned download
                 # (takes the same GOKZ=… variables as make bundle)
 make check      # both of the above
 make bundle     # add-on zips in dist/ (see above); make clean removes them
-make outdated   # newer tags for the pinned base images (needs skopeo)
+make outdated   # newer tags for the pinned base images and build.sh's GitHub
+                # releases (needs skopeo and git)
 ```
 
-Plugins in `build.sh` aren't covered by `make outdated`; bump their URLs and
-hashes by hand.
+`make outdated` keeps Metamod and SourceMod on 1.12 and lists the downloads it
+can't check, which aren't on GitHub. Bump URLs and hashes in `build.sh` by hand.
