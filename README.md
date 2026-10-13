@@ -205,15 +205,9 @@ arguments together:
         GOKZ_SHA256: 645ac99dfadcb45a347b5c617f1db9709105fa36a7c53bfb84d19334a945d587
         STEAMWORKS: https://github.com/alliedmodders/SM-SteamWorks/releases/download/v1.2.167/SteamWorks-1.2.167-sm1.12-linux.tar.gz
         STEAMWORKS_SHA256: af5d01b170b866f9e377d3739bded46138044cc54fb7c381ba77d34e07bb783c
-        STEAMWORKS_PREFIX: ""
         GLOBALAPI: https://github.com/misscatmint/csgo-sm-globalapi/releases/download/v2.1.0/GlobalAPI-v2.1.0.zip
         GLOBALAPI_SHA256: a7f16bb752ba836916e016e291fde41beaf1fe0022fb2d0032cc488ffe7cf72b
 ```
-
-`STEAMWORKS_PREFIX` is the folder the SteamWorks archive keeps its files in:
-`package` for the default build, and empty for the one above. If you leave it
-out, the build fails with `package/addons/sourcemod/extensions: Not found in
-archive`.
 
 ### Notes
 

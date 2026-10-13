@@ -1,9 +1,23 @@
 #!/bin/bash
+# build.sh OUT
+# Assembles the add-on tree (csgo/, server.cfg, .version) in OUT, which must not
+# exist yet. The Docker build runs it as /build.sh /build.
 
 set -Eeuo pipefail
 
-mkdir -p /build/csgo
-cd /build/csgo
+# Swappable with build args or environment variables (see README); empty means default.
+: "${GOKZ:=https://github.com/misscatmint/gokz/releases/download/3.6.4-srs1/GOKZ-v3.6.4-srs1.zip}"
+: "${GOKZ_SHA256:=432268d04751d42be4797970663c28c10c3edbb1f37bcbedae6bcf7e733fa838}"
+: "${STEAMWORKS:=https://github.com/KyleSanderson/SteamWorks/releases/download/1.2.3c/package-lin.tgz}"
+: "${STEAMWORKS_SHA256:=6679e6dfd19d4c78a71d224ff3f7d72d9becbc256082ed4bce85cbaa1e012713}"
+: "${GLOBALAPI:=https://bitbucket.org/kztimerglobalteam/globalapi-smplugin/downloads/GlobalAPI-v2.0.4.zip}"
+: "${GLOBALAPI_SHA256:=a986650e1fead3a438075aeaa1480f77f8033d048409de49d245bc54f34600d9}"
+
+[[ $# == 1 && ! -e $1 ]] || { echo "usage: build.sh OUT (OUT must not exist)" >&2; exit 1; }
+overlay=$(dirname "$(realpath "$0")")/overlay
+mkdir -p "$1/csgo"
+out=$(realpath "$1")
+cd "$out/csgo"
 
 # fetch DEST URL SHA256
 fetch() {
@@ -13,25 +27,35 @@ fetch() {
         { echo "checksum mismatch: $2" >&2; return 1; }
 }
 
-# unpack [-o] [-s PREFIX] URL SHA256 [member...]
+# unpack [-o] [-s PREFIX | -a] URL SHA256 [member...]
 #   -o  overwrite existing files (without it, zip and tar both fail on conflicts)
 #   -s  the archive keeps everything under PREFIX/. Members are given relative
 #       to it, and end up in the cwd without the prefix.
+#   -a  like -s, with PREFIX detected: the single top-level folder, unless that's addons
 unpack() {
-    local overwrite=() prefix=
+    local overwrite=() prefix='' detect=''
     while [[ $1 == -* ]]; do
         case $1 in
             -o) overwrite=(-o); shift ;;
             -s) prefix=$2/; shift 2 ;;
+            -a) detect=1; shift ;;
             *)  echo "unpack: unknown option $1" >&2; return 1 ;;
         esac
     done
     local url=$1 sha256=$2; shift 2
-    local archive members=() m
-    for m in "$@"; do members+=("$prefix$m"); done
+    local archive top members=() m
 
     archive=$(mktemp)
     fetch "$archive" "$url" "$sha256"
+    if [[ -n $detect ]]; then
+        if [[ $(head -c2 "$archive") == PK ]]; then
+            top=$(unzip -Z1 "$archive" | cut -d/ -f1 | sort -u)
+        else
+            top=$(tar tf "$archive" | cut -d/ -f1 | sort -u)
+        fi
+        [[ $top == *$'\n'* || $top == addons ]] || prefix=$top/
+    fi
+    for m in "$@"; do members+=("$prefix$m"); done
     if [[ $(head -c2 "$archive") == PK ]]; then
         unzip -q "${overwrite[@]}" "$archive" "${members[@]}" </dev/null
     else
@@ -69,8 +93,8 @@ fetch addons/sourcemod/plugins/itemcrashfix.smx \
 fetch addons/sourcemod/plugins/CommandAliases.smx \
       https://bitbucket.org/Sikarii/sm-commandaliases/downloads/CommandAliases-latest.smx \
       92945d02eb423cb6cd9f7f845d38566cb19ecce29c71439fd48bbd2c17b44a4d
-unpack ${STEAMWORKS_PREFIX:+-s "$STEAMWORKS_PREFIX"} "$STEAMWORKS" \
-                                                     "$STEAMWORKS_SHA256" \
+unpack -a "$STEAMWORKS" \
+          "$STEAMWORKS_SHA256" \
     addons/sourcemod/extensions
 fetch addons/sourcemod/plugins/dlmap.smx \
       https://github.com/misscatmint/sm-dlmap/releases/download/0.5/dlmap.smx \
@@ -164,10 +188,12 @@ sed -i -E 's/^sm_weapons_chat_prefix "\[oyunhost\.net\]"$/sm_weapons_chat_prefix
 sed -i -E 's/^sm_gloves_chat_prefix "\[oyunhost\.net\]"$/sm_gloves_chat_prefix ""/' \
     cfg/sourcemod/gloves.cfg
 
-# Our own config files, laid over everything else (overlay/ mirrors /build).
-cp -a /overlay/. /build/
+# Our own config files, laid over everything else (overlay/ mirrors OUT).
+cp -a "$overlay/." "$out/"
 
 # Changes whenever anything above does; entrypoint.sh compares against it to
-# decide whether to update an existing /data volume.
-find /build -type f ! -name .version -print0 | LC_ALL=C sort -z |
-    xargs -0 sha256sum | sha256sum | cut -d' ' -f1 > /build/.version
+# decide whether to update an existing /data volume. Relative paths keep it the
+# same wherever OUT is.
+cd "$out"
+version=$(find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
+echo "$version" > .version
