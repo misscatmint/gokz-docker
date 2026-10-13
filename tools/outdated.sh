@@ -29,7 +29,7 @@ done
 
 # GitHub answers a missing repo with a login prompt otherwise.
 export GIT_TERMINAL_PROMPT=0
-grep -oE 'https://github\.com/[^/]+/[^/]+/releases/download/[^/]+/' build.sh |
+releases=$(grep -oE 'https://github\.com/[^/]+/[^/]+/releases/download/[^/]+/' build.sh |
     sed -E 's#^https://github\.com/([^/]+/[^/]+)/releases/download/([^/]+)/$#\1 \2#' | sort -u |
 while read -r repo tag; do
     # Moving to Metamod 2.0 or SourceMod 1.13 is out of scope.
@@ -39,6 +39,10 @@ while read -r repo tag; do
     esac
     tags=$(git ls-remote --tags --refs "https://github.com/$repo")
     printf '%s\n' "$tags" | sed 's#.*refs/tags/##' | report "$repo $tag" "$tag" "$prefix"
-done
+done)
+printf '%s\n' "$releases"
 grep -oE "https://[^\"'} ]+" build.sh |
     grep -vE '^https://github\.com/[^/]+/[^/]+/releases/download/' | sed 's/^/not checked: /'
+case $releases in
+    *' -> '*) printf '\nTo update one, copy the new download link from its release page and run\ntools/bump.sh URL\n' ;;
+esac

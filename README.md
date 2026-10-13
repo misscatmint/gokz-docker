@@ -258,4 +258,9 @@ make outdated   # newer tags for the pinned base images and build.sh's GitHub
 ```
 
 `make outdated` keeps Metamod and SourceMod on 1.12 and lists the downloads it
-can't check, which aren't on GitHub. Bump URLs and hashes in `build.sh` by hand.
+can't check, which aren't on GitHub. To update a GitHub download, copy the new
+file's link from its release page and run `tools/bump.sh URL`. It swaps the URL
+and sha256 in `build.sh` and shows how the archive's file list changed, so you
+can check the extract paths. Read the release notes, then `make build`. Update
+the other downloads by hand, and the GOKZ version mentioned above when bumping
+GOKZ's default.
