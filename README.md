@@ -47,8 +47,8 @@ and just keep your configs in a separate, easy-to-edit place.
 
 ## Configuration
 
-These control how the server starts. Everything else, like the server name, is
-set in the config files.
+These control how the server starts and which files it keeps updated for you.
+Everything else, like the server name, is set in the config files.
 
 | Variable | Default | Description |
 | --- | --- | --- |
