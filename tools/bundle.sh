@@ -12,6 +12,7 @@ set -Eeuo pipefail
 
 mkdir -p "$3"
 build=$(realpath "$1") state=$(realpath "$2") out=$(realpath "$3")
+tools=$(dirname "$(realpath "$0")")
 version=$(cut -c1-12 "$build/.version")
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
@@ -49,4 +50,5 @@ zip -qrX "$out/gokz-$version.zip" .
 cp "$work/removed.txt" gokz-removed.txt
 { upgrade_files; echo gokz-sources.txt; echo gokz-removed.txt; } |
     zip -qX "$out/gokz-$version-upgrade.zip" -@
+"$tools/checkbundle.sh" "$out/gokz-$version.zip" "$out/gokz-$version-upgrade.zip"
 mv "$work/files.txt" "$work/removed.txt" "$state/"

@@ -242,6 +242,8 @@ bundle another GOKZ build, set the same variables as the
 
 `make bundle` also updates `bundle/files.txt` and `bundle/removed.txt`. Commit
 them with each release; the next upgrade zip's removal list comes from them.
+Before updating them, it checks that the upgrade zip has everything the full
+zip has except configs, and stops if it doesn't.
 
 ## Development
 
