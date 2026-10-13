@@ -7,7 +7,8 @@ download() {
     local url=$1 dest=$2 tmp
     mkdir -p "$(dirname "$dest")"
     tmp="$(mktemp "$dest-XXXXXX")"
-    if curl -fsSL -o "$tmp" "$url"; then mv "$tmp" "$dest"; else rm -f "$tmp"; fi
+    # mktemp creates the file as 600; give it the usual 644 like other files.
+    if curl -fsSL -o "$tmp" "$url"; then chmod 644 "$tmp"; mv "$tmp" "$dest"; else rm -f "$tmp"; fi
 }
 
 # --out-format prints each file rsync creates or replaces (directories end in /).
