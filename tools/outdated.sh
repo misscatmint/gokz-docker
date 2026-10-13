@@ -41,6 +41,3 @@ done)
 [ -n "$images$releases" ] || echo "Everything checked is current."
 grep -oE "https://[^\"'} ]+" build.sh |
     grep -vE '^https://github\.com/[^/]+/[^/]+/releases/download/' | sed 's/^/not checked: /'
-case $releases in
-    *' -> '*) printf '\nTo update one, copy the new download link from its release page and run\ntools/bump.sh URL\n' ;;
-esac
