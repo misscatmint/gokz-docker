@@ -172,6 +172,8 @@ unpack https://github.com/kgns/gloves/releases/download/v1.0.5/gloves-v1.0.5.zip
 
 # Adjustments to what was downloaded.
 
+# SourceMod's auto-updater. Existing servers keep their core.cfg, so the
+# DisableAutoUpdate below doesn't reach them; without the file it can't run.
 rm addons/sourcemod/extensions/updater.ext.so
 # The CS:GO server is 32-bit and Metamod and SourceMod only load the builds for
 # the running game, so nothing ever loads the 64-bit or other games' binaries.
@@ -183,7 +185,8 @@ mv addons/sourcemod/plugins/basevotes.smx addons/sourcemod/plugins/disabled/
 mv addons/sourcemod/plugins/funcommands.smx addons/sourcemod/plugins/disabled/
 mv addons/sourcemod/plugins/funvotes.smx addons/sourcemod/plugins/disabled/
 mv addons/sourcemod/plugins/playercommands.smx addons/sourcemod/plugins/disabled/
-sed -i -E 's/("FollowCSGOServerGuidelines"[[:space:]]+)"[^"]+"/\1"no"/' \
+sed -i -E -e 's/("FollowCSGOServerGuidelines"[[:space:]]+)"[^"]+"/\1"no"/' \
+    -e 's/("DisableAutoUpdate"[[:space:]]+)"[^"]+"/\1"yes"/' \
     addons/sourcemod/configs/core.cfg
 sed -i -E 's/^sm_weapons_chat_prefix "\[oyunhost\.net\]"$/sm_weapons_chat_prefix ""/' \
     cfg/sourcemod/weapons.cfg
