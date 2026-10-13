@@ -1,6 +1,8 @@
 #!/bin/bash
 
 export LC_ALL=C
+# Healthy while entrypoint.sh installs or updates, so tools that restart
+# unhealthy containers don't kill the 30 GB download.
 flock -n /data/.install.lock -c '' || exit 0
 flock -n /data/.update.lock -c '' || exit 0
 exec 3<>"/dev/udp/$(hostname -I | awk '{print $1}')/$PORT"
