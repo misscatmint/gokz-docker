@@ -9,16 +9,6 @@ download() {
     if curl -fsSL -o "$tmp" "$url"; then mv "$tmp" "$dest"; else rm -f "$tmp"; fi
 }
 
-# Escapes the characters that are special in the replacement half of s#..#..#.
-sed_escape() { printf '%s' "$1" | sed 's/[\\&#]/\\&/g'; }
-
-# set_cvar FILE KEY VALUE: replaces the quoted value after KEY; skipped when
-# VALUE is empty.
-set_cvar() {
-    [[ -z $3 ]] ||
-        sed -i -E "s#(^[[:space:]]*$2[[:space:]]+)\"[^\"]*\"#\1\"$(sed_escape "$3")\"#" "$1"
-}
-
 # --out-format prints each file rsync creates or replaces (directories end in /).
 rsync_opts=(-a --omit-dir-times --delay-updates
             --out-format='gokz-docker: updated %n')
@@ -71,12 +61,6 @@ fi
 
 sed -i -E 's#^appID=.*$#appID=4465480#' "$HOME/csgo/steam.inf"
 
-set_cvar "$HOME/csgo/cfg/$SERVERCFG" hostname "$NAME"
-set_cvar "$HOME/csgo/cfg/$SERVERCFG" sv_downloadurl "$FASTDL"
-set_cvar "$HOME/csgo/cfg/sourcemod/dlmap.cfg" sm_dlmap_url "$DLMAP"
-set_cvar "$HOME/csgo/cfg/sourcemod/dlmap.cfg" sm_dlmap_maplist_url "$DLMAPLIST"
-set_cvar "$HOME/csgo/cfg/sourcemod/dlmap.cfg" sm_dlmap_subdirs "$DLMAPSUBDIRS"
-
 maplist="$(mktemp "$HOME/csgo/maplist.txt-XXXXXX")"
 mapcycle="$(mktemp "$HOME/csgo/mapcycle.txt-XXXXXX")"
 find "$HOME/csgo/maps/" -type f \
@@ -93,10 +77,17 @@ then
     download "$MAPPOOL" "$HOME/csgo/cfg/sourcemod/gokz/gokz-localranks-mappool.cfg"
 fi
 
-if [[ "$MAPCMD" == "map" && -n "$DLMAP" && ! -f "$HOME/csgo/maps/$MAP.bsp" ]]
+dlmapcfg=$HOME/csgo/cfg/sourcemod/dlmap.cfg
+if [[ "$MAPCMD" == "map" && ! -f "$HOME/csgo/maps/$MAP.bsp" && -f "$dlmapcfg" ]]
 then
-    download "$DLMAP/$MAP.bsp" "$HOME/csgo/maps/$MAP.bsp"
-    download "$DLMAP/$MAP.nav" "$HOME/csgo/maps/$MAP.nav"
+    # Same source as !dlmap; the last sm_dlmap_url line wins, as when srcds runs the file.
+    dlmap=$(sed -nE 's/^[[:space:]]*sm_dlmap_url[[:space:]]+"?([^"[:space:]]*).*/\1/p' \
+                "$dlmapcfg" | tail -n 1)
+    if [[ -n $dlmap ]]
+    then
+        download "$dlmap/$MAP.bsp" "$HOME/csgo/maps/$MAP.bsp"
+        download "$dlmap/$MAP.nav" "$HOME/csgo/maps/$MAP.nav"
+    fi
 fi
 
 # Accelerator uploads, then deletes, every dump it finds when srcds starts.

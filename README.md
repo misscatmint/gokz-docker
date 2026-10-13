@@ -16,7 +16,6 @@ services:
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     environment:
-      NAME: My KZ Server
       MAP: kz_vnl_crimdaughter
       MAXPLAYERS: 16
     volumes:
@@ -47,22 +46,17 @@ and just keep your configs in a separate, easy-to-edit place.
 
 ## Configuration
 
-Settings below are applied on every start. Leave one empty to manage that
-setting yourself in your config files instead.
+These control how the server starts. Everything else, like the server name, is
+set in the config files.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `NAME` | | Server name (`hostname`) |
-| `MAP` | `kz_hikari_od` | Starting map (downloaded automatically if missing) |
+| `MAP` | `kz_hikari_od` | Starting map (downloaded from `sm_dlmap_url` if missing) |
 | `MAPCMD` | `map` | Command used to load the starting map (e.g., `host_workshop_map`) |
 | `MAXPLAYERS` | `10` | Player slots |
 | `PORT` | `27015` | Game port (TCP and UDP) |
 | `SERVERCFG` | `server.cfg` | Server config file in `csgo/cfg` |
 | `FLAGS` | | Extra srcds command-line options (e.g., `-nomaster`) |
-| `FASTDL` | badservers.net FastDL | Client download URL (`sv_downloadurl`) |
-| `DLMAP` | badservers.net maps | Where `!dlmap` downloads maps from |
-| `DLMAPLIST` | badservers.net map list | Map list `!dlmap` uses for fuzzy matching |
-| `DLMAPSUBDIRS` | `reuploads` | Extra directories `!dlmap` checks |
 | `MAPPOOL` | badservers.net map pool | GOKZ local ranks map pool (empty to skip) |
 
 ### API keys

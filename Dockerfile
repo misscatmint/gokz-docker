@@ -1,15 +1,10 @@
 FROM registry.gitlab.steamos.cloud/steamrt/sniper/sdk:3.0.20260805.254768@sha256:1c33c507bc75d012e77df5727f93b0d5b8c3f7c8d4142ba5f7a16882cc92e014
-ENV DLMAP="https://csgo-kz-maps.badservers.net/maps" \
-    DLMAPLIST="https://csgo-kz-maps.badservers.net/configs/maplist.txt" \
-    DLMAPSUBDIRS="reuploads" \
-    FASTDL="http://csgo-kz-maps.badservers.net/fastdl" \
-    FLAGS= \
+ENV FLAGS= \
     HOME=/data \
     MAP=kz_hikari_od \
     MAPCMD=map \
     MAPPOOL="https://csgo-kz-maps.badservers.net/configs/cfg/sourcemod/gokz/gokz-localranks-mappool.cfg" \
     MAXPLAYERS=10 \
-    NAME= \
     PORT=27015 \
     SERVERCFG=server.cfg
 
