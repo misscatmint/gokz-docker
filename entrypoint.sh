@@ -20,6 +20,14 @@ disabled_excludes() {
          -printf '/csgo/addons/%P\n' | sed 's#/disabled/#/#'
 }
 
+# Files the image owns, relative to $HOME: what the last rsync below copies,
+# minus maps, which stay even if a later version stops shipping them.
+image_files() {
+    (cd /build && find csgo -type f ! -path '*/cfg/*' \
+         ! -path '*/addons/sourcemod/configs/*' ! -path 'csgo/maps/*') |
+        LC_ALL=C sort
+}
+
 mkdir -p "$HOME/.steam/sdk32"
 ln -sf "$HOME/.local/share/Steam/steamcmd/linux32/steamclient.so" \
     "$HOME/.steam/sdk32/"
@@ -54,6 +62,17 @@ then
           /build/csgo/addons/sourcemod/configs "$HOME/csgo/addons/sourcemod/"
     rsync "${rsync_opts[@]}" --exclude cfg --exclude addons/sourcemod/configs \
           --exclude-from=<(disabled_excludes) /build/csgo "$HOME"
+    # Remove what an earlier version installed but this one no longer ships.
+    if [[ -f $HOME/.gokz-docker-files ]]; then
+        LC_ALL=C comm -23 "$HOME/.gokz-docker-files" <(image_files) |
+            while IFS= read -r f; do
+                if [[ -e $HOME/$f || -L $HOME/$f ]]; then
+                    rm -f -- "$HOME/$f"
+                    echo "gokz-docker: removed $f"
+                fi
+            done
+    fi
+    image_files > "$HOME/.gokz-docker-files"
     cp /build/.version "$HOME/.gokz-docker-version"
     exec {updatelock}>&-
 else
