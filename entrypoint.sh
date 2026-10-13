@@ -57,8 +57,6 @@ then
         exit 1
     fi
     mkdir -p "$HOME/csgo/cfg" "$HOME/csgo/addons/sourcemod"
-    rsync "${rsync_opts[@]}" --ignore-existing /build/server.cfg \
-          "$HOME/csgo/cfg/$SERVERCFG"
     rsync "${rsync_opts[@]}" --ignore-existing /build/csgo/cfg "$HOME/csgo/"
     rsync "${rsync_opts[@]}" --ignore-existing \
           /build/csgo/addons/sourcemod/configs "$HOME/csgo/addons/sourcemod/"
@@ -80,6 +78,9 @@ then
 else
     echo "gokz-docker: up to date ($(cut -c1-12 /build/.version))"
 fi
+
+# On every start, so a SERVERCFG renamed after the last update still gets the defaults.
+rsync "${rsync_opts[@]}" --ignore-existing /build/server.cfg "$HOME/csgo/cfg/$SERVERCFG"
 
 sed -i -E 's#^appID=.*$#appID=4465480#' "$HOME/csgo/steam.inf"
 
