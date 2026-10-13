@@ -147,15 +147,24 @@ command line, and recent console output, which often points at the culprit.
 Nothing is uploaded anywhere.
 
 To see the stack traces, use
-[minidump-stackwalk](https://github.com/rust-minidump/rust-minidump/tree/main/minidump-stackwalk):
+[dump_syms](https://github.com/mozilla/dump_syms) and
+[minidump-stackwalk](https://github.com/rust-minidump/rust-minidump/tree/main/minidump-stackwalk)
+(`cargo install`, or prebuilt binaries from their releases):
 
 ```sh
-cargo install minidump-stackwalk
-minidump-stackwalk gokz/data/crashdumps/<file>.dmp
+find gokz/data -name '*.so' -type f -exec dump_syms --store symbols {} \;
+minidump-stackwalk --symbols-path symbols gokz/data/crashdumps/<file>.dmp
 ```
 
-Frames show up as module and offset (e.g. `server.so + 0x1a2b3c`). Plugin
-(SourcePawn) frames aren't named. Dumps contain the server's memory, including
+The first command reads the unwind tables out of the server's own binaries
+(about 500 MB, 15 seconds). Without them, minidump-stackwalk has to guess where
+each frame starts, and the trace can be wrong. Rerun it after a game or plugin
+update, since the symbols only match the exact binaries that crashed.
+
+Valve's binaries have almost no function names, so their frames show up as
+module and offset (e.g. `server.so + 0x1a2b3c`). A frame in
+`sourcepawn.jit.x86.so` means the crash happened while a plugin was running,
+but the plugin itself isn't named. Dumps contain the server's memory, including
 your API keys, so don't share them publicly.
 
 ## Permissions
