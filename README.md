@@ -235,8 +235,8 @@ The zips leave out Accelerator, since outside the image nothing stops it from
 uploading crash dumps. The image's start-up tasks (map lists, map pool sync)
 don't happen either.
 
-The zips are built without Docker and need bash, curl, tar, unzip, and zip. To
-bundle another GOKZ build, set the same variables as the
+The zips are built in a small Alpine container (`bundle/Dockerfile`), so only
+Docker is needed. To bundle another GOKZ build, set the same variables as the
 [build arguments](#gokz-37x), e.g. `GOKZ=… GOKZ_SHA256=… make bundle`.
 `make clean` deletes `dist/`.
 

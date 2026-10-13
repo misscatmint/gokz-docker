@@ -4,7 +4,7 @@
 set -eu
 cd "$(dirname "$0")/.."
 
-sed -nE 's/^FROM ([^:@ ]+):([^@ ]+)@.*/\1 \2/p' Dockerfile maps/Dockerfile | sort -u |
+sed -nE 's/^FROM ([^:@ ]+):([^@ ]+)@.*/\1 \2/p' Dockerfile maps/Dockerfile bundle/Dockerfile | sort -u |
 while read -r image tag; do
     shape=$(printf '%s' "$tag" | sed -E 's/[0-9]+/N/g')
     # Its own step so set -e catches a failure, which a pipeline would hide.
