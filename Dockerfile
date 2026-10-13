@@ -25,7 +25,7 @@ COPY --from=build /build /build
 COPY --chmod=755 check.sh entrypoint.sh run.sh /
 USER 1000:1000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5m --start-interval=10s --retries=3 \
             CMD ["/check.sh"]
 ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
 CMD ["/run.sh"]
