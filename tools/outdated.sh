@@ -7,10 +7,13 @@ cd "$(dirname "$0")/.."
 sed -nE 's/^FROM ([^:@ ]+):([^@ ]+)@.*/\1 \2/p' Dockerfile maps/Dockerfile | sort -u |
 while read -r image tag; do
     shape=$(printf '%s' "$tag" | sed -E 's/[0-9]+/N/g')
-    latest=$(skopeo list-tags "docker://$image" |
+    # Its own step so set -e catches a failure, which a pipeline would hide.
+    tags=$(skopeo list-tags "docker://$image")
+    latest=$(printf '%s\n' "$tags" |
         sed -nE 's/^ *"([^"]+)",?$/\1/p' |
         awk -v shape="$shape" '{ s = $0; gsub(/[0-9]+/, "N", s) } s == shape' |
         sort -V | tail -n 1)
+    [ -n "$latest" ] || { echo "outdated.sh: no $shape tags for $image" >&2; exit 1; }
     if [ "$latest" = "$tag" ]; then
         printf '%s:%s is current\n' "$image" "$tag"
     else
