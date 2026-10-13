@@ -25,7 +25,8 @@ services:
       - ./gokz/etc/cfg:/data/csgo/cfg
     ports:
       - 27015:27015/udp
-      - 127.0.0.1:27015:27015/tcp  # RCON only; drop 127.0.0.1: to reach it remotely
+      # RCON (drop 127.0.0.1: to reach it remotely)
+      - 127.0.0.1:27015:27015/tcp
 ```
 
 ```sh
@@ -33,7 +34,7 @@ mkdir -p gokz/data/csgo/cfg gokz/data/csgo/addons/sourcemod/configs \
          gokz/data/csgo/maps gokz/etc/cfg gokz/etc/addons/sourcemod/configs
 sudo chown -R 1000:1000 gokz    # skip on rootless Docker, see Permissions
 docker compose up -d
-docker attach gokz    # server console (detach with Ctrl-P Ctrl-Q)
+docker attach gokz              # server console (detach with Ctrl-P Ctrl-Q)
 ```
 
 Both containers use the host's timezone through the `/etc/localtime` mount. To
@@ -76,7 +77,7 @@ only by the server, and restart the container:
 
 ```sh
 chmod 600 gokz/etc/cfg/sourcemod/globalapi-key.cfg gokz/data/csgo/webapi_authkey.txt
-sudo chown 1000:1000 gokz/etc/cfg/sourcemod/globalapi-key.cfg gokz/data/csgo/webapi_authkey.txt  # skip on rootless Docker
+sudo chown 1000:1000 gokz/etc/cfg/sourcemod/globalapi-key.cfg gokz/data/csgo/webapi_authkey.txt # skip on rootless Docker
 ```
 
 ### Config files
@@ -101,11 +102,11 @@ are left alone.
 
 ## Maps
 
-The optional `gokz-maps` container downloads any maps from the
-[KZ map archive](https://csgo-kz-maps.badservers.net) that you don't have yet,
-every day at 4:00 local time. Maps you already have, including ones from
-other sources, are never touched. The full archive is large, so check your
-free disk space before enabling it.
+The optional `gokz-maps` container downloads any maps from the [BadServers KZ
+map archive](https://csgo-kz-maps.badservers.net) that you don't have yet,
+every day at 4:00 local time. Maps you already have, including ones from other
+sources, are never touched. The full archive is large, so check your free disk
+space before enabling it.
 
 Example `compose.yaml`:
 
@@ -173,9 +174,6 @@ creates a missing one itself, root owns it and the server can't write to it.
 - **`userns-remap`:** add `userns_mode: host` to both services, or chown your
   data directories to the remapped UID (the start of your subordinate UID range
   plus 1000).
-- **Upgrading from `PUID`/`PGID`:** they're gone. If you set them to something
-  other than 1000, use `user:` instead; if you set them to `0` for rootless
-  Docker, use `user: "0:0"`.
 
 ## GOKZ build
 
