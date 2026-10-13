@@ -29,16 +29,14 @@ fetch() {
     echo "$2" >> "$out/sources.txt"
 }
 
-# unpack [-o] [-s PREFIX | -a] URL SHA256 [member...]
-#   -o  overwrite existing files (without it, zip and tar both fail on conflicts)
+# unpack [-s PREFIX | -a] URL SHA256 [member...]
 #   -s  the archive keeps everything under PREFIX/. Members are given relative
 #       to it, and end up in the cwd without the prefix.
 #   -a  like -s, with PREFIX detected: the single top-level folder, unless that's addons
 unpack() {
-    local overwrite=() prefix='' detect=''
+    local prefix='' detect=''
     while [[ $1 == -* ]]; do
         case $1 in
-            -o) overwrite=(-o); shift ;;
             -s) prefix=$2/; shift 2 ;;
             -a) detect=1; shift ;;
             *)  echo "unpack: unknown option $1" >&2; return 1 ;;
@@ -59,7 +57,7 @@ unpack() {
     fi
     for m in "$@"; do members+=("$prefix$m"); done
     if [[ $(head -c2 "$archive") == PK ]]; then
-        unzip -q "${overwrite[@]}" "$archive" "${members[@]}" </dev/null
+        unzip -q "$archive" "${members[@]}" </dev/null
     else
         tar xkf "$archive" "${members[@]}"
     fi
@@ -69,7 +67,7 @@ unpack() {
     fi
 }
 
-# Downloads. Order matters where an archive overrides another (-o).
+# Downloads. Archives can't overlap: unzip and tar both fail on existing files.
 
 unpack https://github.com/zer0k-z/csgo-multi-appid/releases/download/v1.0.2/csgo-multi-appid-linux.zip \
        a7b8f0073328d592481eb48f16e9e1479fac66200e9eda67b4e0ec9dce8ecc39
