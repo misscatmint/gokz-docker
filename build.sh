@@ -6,12 +6,12 @@
 set -Eeuo pipefail
 
 # Swappable with build args or environment variables (see README); empty means default.
-: "${GOKZ:=https://github.com/misscatmint/gokz/releases/download/3.6.4-srs1/GOKZ-v3.6.4-srs1.zip}"
-: "${GOKZ_SHA256:=432268d04751d42be4797970663c28c10c3edbb1f37bcbedae6bcf7e733fa838}"
-: "${STEAMWORKS:=https://github.com/KyleSanderson/SteamWorks/releases/download/1.2.3c/package-lin.tgz}"
-: "${STEAMWORKS_SHA256:=6679e6dfd19d4c78a71d224ff3f7d72d9becbc256082ed4bce85cbaa1e012713}"
-: "${GLOBALAPI:=https://bitbucket.org/kztimerglobalteam/globalapi-smplugin/downloads/GlobalAPI-v2.0.4.zip}"
-: "${GLOBALAPI_SHA256:=a986650e1fead3a438075aeaa1480f77f8033d048409de49d245bc54f34600d9}"
+: "${GOKZ:=https://github.com/misscatmint/gokz/releases/download/3.7.1-srs2/GOKZ-v3.7.1-srs2.zip}"
+: "${GOKZ_SHA256:=b94f7c5867b6a5554313dff1e76fc1adcf0886b41f3d469f65cdc36d0de95bb5}"
+: "${STEAMWORKS:=https://github.com/alliedmodders/SM-SteamWorks/releases/download/v1.2.167/SteamWorks-1.2.167-sm1.12-linux.tar.gz}"
+: "${STEAMWORKS_SHA256:=af5d01b170b866f9e377d3739bded46138044cc54fb7c381ba77d34e07bb783c}"
+: "${GLOBALAPI:=https://github.com/misscatmint/csgo-sm-globalapi/releases/download/v2.1.0/GlobalAPI-v2.1.0.zip}"
+: "${GLOBALAPI_SHA256:=a7f16bb752ba836916e016e291fde41beaf1fe0022fb2d0032cc488ffe7cf72b}"
 
 [[ $# == 1 && ! -e $1 ]] || { echo "usage: build.sh OUT (OUT must not exist)" >&2; exit 1; }
 overlay=$(dirname "$(realpath "$0")")/overlay

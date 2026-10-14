@@ -187,13 +187,13 @@ creates a missing one itself, root owns it and the server can't write to it.
 ## GOKZ build
 
 The image bundles
-[GOKZ 3.6.4-srs1](https://github.com/misscatmint/gokz/releases/tag/3.6.4-srs1)
+[GOKZ 3.7.1-srs2](https://github.com/misscatmint/gokz/releases/tag/3.7.1-srs2)
 along with the SteamWorks and GlobalAPI versions it needs. Each one is a build
 argument, so you can swap in another release or your own fork.
 
-### GOKZ 3.7.x
+### GOKZ 3.6.x
 
-GOKZ 3.7.x needs newer SteamWorks and GlobalAPI builds. Set all of these
+GOKZ 3.6.x needs older SteamWorks and GlobalAPI builds. Set all of these
 arguments together:
 
 ```yaml
@@ -201,12 +201,12 @@ arguments together:
     build:
       context: ./gokz-docker
       args:
-        GOKZ: https://github.com/misscatmint/gokz/releases/download/3.7.0-srs1/GOKZ-v3.7.0-srs1.zip
-        GOKZ_SHA256: 645ac99dfadcb45a347b5c617f1db9709105fa36a7c53bfb84d19334a945d587
-        STEAMWORKS: https://github.com/alliedmodders/SM-SteamWorks/releases/download/v1.2.167/SteamWorks-1.2.167-sm1.12-linux.tar.gz
-        STEAMWORKS_SHA256: af5d01b170b866f9e377d3739bded46138044cc54fb7c381ba77d34e07bb783c
-        GLOBALAPI: https://github.com/misscatmint/csgo-sm-globalapi/releases/download/v2.1.0/GlobalAPI-v2.1.0.zip
-        GLOBALAPI_SHA256: a7f16bb752ba836916e016e291fde41beaf1fe0022fb2d0032cc488ffe7cf72b
+        GOKZ: https://github.com/misscatmint/gokz/releases/download/3.6.4-srs1/GOKZ-v3.6.4-srs1.zip
+        GOKZ_SHA256: 432268d04751d42be4797970663c28c10c3edbb1f37bcbedae6bcf7e733fa838
+        STEAMWORKS: https://github.com/KyleSanderson/SteamWorks/releases/download/1.2.3c/package-lin.tgz
+        STEAMWORKS_SHA256: 6679e6dfd19d4c78a71d224ff3f7d72d9becbc256082ed4bce85cbaa1e012713
+        GLOBALAPI: https://bitbucket.org/kztimerglobalteam/globalapi-smplugin/downloads/GlobalAPI-v2.0.4.zip
+        GLOBALAPI_SHA256: a986650e1fead3a438075aeaa1480f77f8033d048409de49d245bc54f34600d9
 ```
 
 ### Notes
@@ -237,7 +237,7 @@ don't happen either.
 
 The zips are built in a small Alpine container (`bundle/Dockerfile`), so only
 Docker is needed. To bundle another GOKZ build, set the same variables as the
-[build arguments](#gokz-37x), e.g. `GOKZ=… GOKZ_SHA256=… make bundle`.
+[build arguments](#gokz-36x), e.g. `GOKZ=… GOKZ_SHA256=… make bundle`.
 `make clean` deletes `dist/`.
 
 `make bundle` also updates `bundle/files.txt` and `bundle/removed.txt`. Commit
