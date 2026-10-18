@@ -104,8 +104,8 @@ fetch addons/sourcemod/plugins/dlmap.smx \
 unpack https://github.com/FemboyKZ/sm-server-whitelist-advanced/releases/download/1.6.2/serverwhitelistadvanced-1.6.2.zip \
        6d8217988ed4856ed60406f3e8f8237596ef7cf216abeba96b0e56081cd5fdeb \
     'addons/sourcemod/plugins/*'
-unpack https://github.com/FemboyKZ/MovementAPI/releases/download/2.5.0/movementapi-2.5.0.zip \
-       b7e79e0ea6eea8620e12fbc85fc83dbb295934ec45a15575cbd1abc3d687679b \
+unpack https://github.com/FemboyKZ/MovementAPI/releases/download/2.5.2/movementapi-2.5.2.zip \
+       7c6add4ea74240e9bbf8fee9dc0d52a1182df5234a860b6b45f36bdf3f29266c \
     'addons/sourcemod/gamedata/*' 'addons/sourcemod/plugins/*'
 unpack "$GOKZ" \
        "$GOKZ_SHA256" \
@@ -121,11 +121,11 @@ fetch addons/sourcemod/plugins/KZServerAdvisor.smx \
 fetch addons/sourcemod/plugins/scoreboardtimer.smx \
       https://github.com/DevRuto/GOKZ-Scoreboard-Timer/releases/download/0.05/scoreboardtimer.smx \
       a1874c9524b318c1ef305ace5f3a446eff2d4af2ba3c430c250fe8f9326b3835
-unpack -s bsp-peek-steamrt3--mm-1.12--sm-1.12 https://github.com/jvnipers/bsp-peek/releases/download/1.6.2/bsp-peek-steamrt3--mm-1.12--sm-1.12.zip \
-                                              f749e57b812d6fa0462bfb1ac44138a31cdc8082d233ed6fc1350044b5316a3b \
+unpack https://github.com/jvnipers/bsp-peek/releases/download/1.7.1/bsp-peek-steamrt3--mm-1.12--sm-1.12.zip \
+       8396fdc648898729edb98f0a4e6d652847944abfc7328768d76f552e0592090d \
     'addons/sourcemod/extensions/*' 'addons/sourcemod/gamedata/*'
-unpack https://github.com/FemboyKZ/movementhud/releases/download/v3.0.9/movementhud-v3.0.9.zip \
-       97d18161ea3056df9cd182cd49cdba419a38b08b695bca15cdb2365eac0b057a \
+unpack https://github.com/FemboyKZ/movementhud/releases/download/v3.0.11/movementhud-v3.0.11.zip \
+       f9c65c5827935fa0b117a619699304109753c62b4ede56ff31ef03aed0709d76 \
     'addons/sourcemod/plugins/*'
 fetch addons/sourcemod/plugins/showpos.smx \
       https://github.com/zer0k-z/showpos/releases/download/v0.0.2/showpos.smx \
