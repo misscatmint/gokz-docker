@@ -254,13 +254,16 @@ make build      # build both images, which checks every pinned download
 make check      # both of the above
 make bundle     # add-on zips in dist/ (see above); make clean removes them
 make outdated   # newer tags for the pinned base images and build.sh's GitHub
-                # releases (needs skopeo and git)
+                # releases (needs skopeo, git and curl)
 ```
 
 `make outdated` keeps Metamod and SourceMod on 1.12 and lists the downloads it
-can't check, which aren't on GitHub. To update a GitHub download, copy the new
-file's link from its release page and run `tools/bump.sh URL`. It swaps the URL
-and sha256 in `build.sh` and shows how the archive's file list changed, so you
-can check the extract paths. Read the release notes, then `make build`. Update
-the other downloads by hand, and the GOKZ version mentioned above when bumping
-GOKZ's default.
+can't check, which aren't on GitHub. Sniper is checked against Valve's latest
+stable release, since the registry also has betas. To update a GitHub download,
+run `tools/bump.sh OWNER/REPO TAG` with the first two words of its `make
+outdated` line. It points `build.sh` at the new release's file of the same name
+with the version swapped, updates its sha256 and shows how the archive's file
+list changed, so you can check the extract paths. If the file was renamed some
+other way, copy its link from the release page and run `tools/bump.sh URL`. Read
+the release notes, then `make build`. Update the other downloads by hand, and
+the GOKZ version mentioned above when bumping GOKZ's default.
