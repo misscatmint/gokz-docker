@@ -4,7 +4,7 @@
 # Points build.sh's download from the same GitHub repo at URL (a release asset,
 # copied from the release page) or at TAG's asset of the same name with the
 # version swapped, updates its sha256, and shows how the archive's file list
-# changed.
+# changed. If build.sh already uses that URL, only its sha256 is updated.
 
 set -Eeuo pipefail
 cd "$(dirname "$0")/.."
@@ -35,18 +35,23 @@ if [[ -z $new ]]; then
     file=${file//"${oldver%.*}-git${oldver##*.}"/"${newver%.*}-git${newver##*.}"}
     new=https://github.com/$repo/releases/download/$newtag/$file
 fi
-[[ $old != "$new" ]] || { echo "bump.sh: build.sh already uses $new" >&2; exit 1; }
 
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
-curl -fsSL -o "$tmp/old" "$old"
 curl -fsSL -o "$tmp/new" "$new" || {
     echo "bump.sh: copy the asset's URL from https://github.com/$repo/releases/tag/$newtag" >&2
     exit 1
 }
+newsha=$(sha256sum "$tmp/new" | cut -d' ' -f1)
+if [[ $old == "$new" ]]; then
+    [[ $newsha != "$oldsha" ]] || { echo "bump.sh: build.sh already uses $new" >&2; exit 1; }
+    sed -i "$((lineno + 1))s#$oldsha#$newsha#" build.sh
+    echo "build.sh:$((lineno + 1)) $repo $newtag sha256 $oldsha -> $newsha"
+    exit
+fi
+curl -fsSL -o "$tmp/old" "$old"
 echo "$oldsha  $tmp/old" | sha256sum -c --quiet - 2>/dev/null ||
     echo "bump.sh: warning: $old no longer matches its pinned hash" >&2
-newsha=$(sha256sum "$tmp/new" | cut -d' ' -f1)
 
 # File names with the version masked, so only real layout changes show up.
 list() {
