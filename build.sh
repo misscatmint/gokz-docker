@@ -152,8 +152,8 @@ fetch addons/sourcemod/plugins/its-too-dark.smx \
 unpack https://github.com/FemboyKZ/sm-missedby/releases/download/1.0.3/fkz-missedby.zip \
        bea547cd9ce435cdcba5d4dbc0adc66c5f3c531403e312cfafc328d66ff1b356 \
     'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*'
-unpack https://github.com/BadServersNet/sm-vanilla-tier/releases/download/v1.0.4/vanilla-tier-v1.0.4.tar.gz \
-       9aa50e5c1f5522a8b98de83f99ed99f53bef0c22fe2712396fd70fabb30b3a60 \
+unpack https://github.com/BadServersNet/sm-vanilla-tier/releases/download/v1.0.5/vanilla-tier-v1.0.5.tar.gz \
+       657e0e0afee1637f9c3efebe788d891de6dcfe31140543cf312f631767da151f \
     ./addons/sourcemod/plugins
 unpack https://github.com/misscatmint/gokz-ljroom-tp/releases/download/2.3.2/gokz-ljroom-tp-2.3.2.zip \
        e7c6a879d85101ebe914d059c2c9c52c195e48828a549febdce6af04b7c16ca2 \
