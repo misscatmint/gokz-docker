@@ -104,8 +104,8 @@ fetch addons/sourcemod/plugins/dlmap.smx \
 unpack https://github.com/FemboyKZ/sm-server-whitelist-advanced/releases/download/1.6.2/serverwhitelistadvanced-1.6.2.zip \
        6d8217988ed4856ed60406f3e8f8237596ef7cf216abeba96b0e56081cd5fdeb \
     'addons/sourcemod/plugins/*'
-unpack https://github.com/FemboyKZ/MovementAPI/releases/download/2.5.2/movementapi-2.5.2.zip \
-       7c6add4ea74240e9bbf8fee9dc0d52a1182df5234a860b6b45f36bdf3f29266c \
+unpack https://github.com/danzayau/MovementAPI/releases/download/2.5.0/MovementAPI-v2.5.0-SM1.12.zip \
+       5d387a922917ee4be0d2f125e7fd4369f964ad05e8094f8f04a669627baa3078 \
     'addons/sourcemod/gamedata/*' 'addons/sourcemod/plugins/*'
 unpack "$GOKZ" \
        "$GOKZ_SHA256" \
@@ -121,9 +121,6 @@ fetch addons/sourcemod/plugins/KZServerAdvisor.smx \
 fetch addons/sourcemod/plugins/scoreboardtimer.smx \
       https://github.com/DevRuto/GOKZ-Scoreboard-Timer/releases/download/0.05/scoreboardtimer.smx \
       a1874c9524b318c1ef305ace5f3a446eff2d4af2ba3c430c250fe8f9326b3835
-unpack https://github.com/jvnipers/bsp-peek/releases/download/1.7.1/bsp-peek-steamrt3--mm-1.12--sm-1.12.zip \
-       8396fdc648898729edb98f0a4e6d652847944abfc7328768d76f552e0592090d \
-    'addons/sourcemod/extensions/*' 'addons/sourcemod/gamedata/*'
 unpack https://github.com/FemboyKZ/movementhud/releases/download/v3.0.11/movementhud-v3.0.11.zip \
        f9c65c5827935fa0b117a619699304109753c62b4ede56ff31ef03aed0709d76 \
     'addons/sourcemod/plugins/*'
