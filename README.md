@@ -8,7 +8,6 @@ server, with quality of life plugins and modern default settings included.
 ```yaml
 services:
   gokz:
-    container_name: gokz
     build: https://github.com/misscatmint/gokz-docker.git
     restart: unless-stopped
     user: "1000:1000" # see Permissions
@@ -109,7 +108,6 @@ Example `compose.yaml`:
 
 ```yaml
   gokz-maps:
-    container_name: gokz-maps
     build:
       context: https://github.com/misscatmint/gokz-docker.git
       target: maps
