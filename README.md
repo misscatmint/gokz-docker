@@ -14,6 +14,8 @@ services:
     user: "1000:1000" # see Permissions
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
+    logging:
+      driver: local # rotates the console output Docker keeps
     stdin_open: true
     tty: true
     environment:
@@ -115,6 +117,8 @@ Example `compose.yaml`:
     user: "1000:1000" # see Permissions below
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
+    logging:
+      driver: local
     cpus: 0.5
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -137,12 +141,27 @@ Delete maps that fail their checksum, so the next sync downloads them again:
 docker exec gokz-maps /maps.sh verify
 ```
 
+## Logs
+
+The server console is also written to `data/csgo/logs/console-<port>.log`, with
+a timestamp on each line. Every start cleans up old logs:
+
+- The console log is rotated once a day, keeping 30 days, compressed.
+- Logs named by date (srcds's, SourceMod's and GlobalAPI's) and crash dumps are
+  deleted once they're 30 days old.
+- Any other log in `addons/sourcemod/logs/` is rotated once it passes 10 MB,
+  keeping the last 3.
+
+Docker's own copy of the console output is capped by the example's `logging:`
+setting.
+
 ## Crash dumps
 
 When srcds crashes, the next start moves the crash dump into
 `data/crashdumps/`. Each `.dmp` has a `.dmp.txt` next to it with the map,
 command line, and recent console output, which often points at the culprit.
-Nothing is uploaded anywhere.
+Nothing is uploaded anywhere, and dumps are deleted after 30 days (see
+[Logs](#logs)).
 
 To see the stack traces, use
 [dump_syms](https://github.com/mozilla/dump_syms) and

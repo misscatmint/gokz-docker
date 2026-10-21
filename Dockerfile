@@ -55,13 +55,14 @@ ENV FLAGS= \
 RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
     echo steam steam/license note "" | debconf-set-selections && \
     apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates curl rsync \
-        tini libgcc-s1:i386 libstdc++6:i386 libuuid1:i386 zlib1g:i386 \
+    apt-get install -y --no-install-recommends ca-certificates curl logrotate \
+        rsync tini libgcc-s1:i386 libstdc++6:i386 libuuid1:i386 zlib1g:i386 \
         steamcmd:i386 && \
     rm -rf /var/lib/apt/lists/* && \
     ln -s /usr/games/steamcmd /usr/bin/steamcmd
 COPY --from=build /build /build
 COPY --chmod=755 check.sh entrypoint.sh run.sh /
+COPY --chmod=644 logrotate.conf /
 USER 1000:1000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5m \

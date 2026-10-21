@@ -122,4 +122,7 @@ if [[ -d $dumps ]]; then
     find "$dumps" -maxdepth 1 -name '*.dmp*' -exec mv -t "$HOME/crashdumps" {} +
 fi
 
+logrotate -s "$HOME/.logrotate.state" /logrotate.conf ||
+    echo "gokz-docker: log rotation failed" >&2
+
 exec "$@"
