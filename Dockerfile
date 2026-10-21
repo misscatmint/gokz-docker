@@ -26,8 +26,8 @@ FROM scratch AS bundle
 COPY --from=bundler /out /
 
 FROM base AS maps
-ARG SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.49/supercronic-linux-amd64
-ARG SUPERCRONIC_SHA256=a53ae236602c7338aba3fbaff40bda6300eae3b9fedb8261eb06cfe3724430c1
+ARG SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.50/supercronic-linux-amd64
+ARG SUPERCRONIC_SHA256=d2d7c97fbfefc763d5bbcbbb3f8d61f9dd3410ce5d05a737c414994b80b8cdd0
 ENV ARIA2URL=https://csgo-kz-maps.badservers.net/downloads/raw-maps.aria2.txt
 # tzdata would otherwise ask for a time zone while installing.
 RUN apt-get update && \
