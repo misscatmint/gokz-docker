@@ -11,15 +11,15 @@ check: lint build
 
 lint:
 	$(LINT) $(SHELLCHECK) *.sh maps/*.sh tools/*.sh
-	$(LINT) --entrypoint /bin/hadolint $(HADOLINT) Dockerfile maps/Dockerfile bundle/Dockerfile
+	$(LINT) --entrypoint /bin/hadolint $(HADOLINT) Dockerfile
 
 # Downloads always rerun, since a cached layer would hide a dead link.
 build:
 	docker build --no-cache-filter build -t gokz-docker:check $(COMPONENTS:%=--build-arg %) .
-	docker build --no-cache -t gokz-docker-maps:check maps
+	docker build --no-cache-filter maps --target maps -t gokz-docker-maps:check .
 
 bundle:
-	docker build -f bundle/Dockerfile --output dist $(COMPONENTS:%=--build-arg %) .
+	docker build --target bundle --output dist $(COMPONENTS:%=--build-arg %) .
 	mv dist/files.txt dist/removed.txt bundle/
 
 clean:

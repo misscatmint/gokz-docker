@@ -1,7 +1,8 @@
 #!/bin/sh
-# Lists the base images pinned in the Dockerfiles and the GitHub releases pinned
-# in build.sh that have a newer tag of the same shape (e.g. 3.24.2 is only
-# compared with other x.y.z tags). Needs skopeo, git and curl.
+# Lists the images pinned in the Dockerfile and Makefile and the GitHub releases
+# pinned in build.sh and the Dockerfile that have a newer tag of the same shape
+# (e.g. v2.15.1 is only compared with other vx.y.z tags). Needs skopeo, git and
+# curl.
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -16,24 +17,18 @@ report() {
     [ "$latest" = "$2" ] || printf '%s %s (was %s)\n' "$1" "$latest" "$2"
 }
 
-images=$(sed -nE 's/^FROM ([^:@ ]+):([^@ ]+)@.*/\1 \2/p' Dockerfile maps/Dockerfile bundle/Dockerfile | sort -u |
+images=$(sed -nE 's/^(FROM|[A-Z]+ :=) ([^:@ ]+):([^@ ]+)@.*/\2 \3/p' Dockerfile Makefile | sort -u |
 while read -r image tag; do
-    case $image in
-        # The registry has beta tags too, and nothing there says which are stable.
-        registry.gitlab.steamos.cloud/steamrt/sniper/platform)
-            tags=$(curl -fsSL https://repo.steampowered.com/steamrt-images-sniper/snapshots/latest-public-stable.txt) ;;
-        *)
-            # Its own step so set -e catches a failure, which a pipeline would hide.
-            tags=$(skopeo list-tags "docker://$image")
-            tags=$(printf '%s\n' "$tags" | sed -nE 's/^ *"([^"]+)",?$/\1/p') ;;
-    esac
+    # Its own step so set -e catches a failure, which a pipeline would hide.
+    tags=$(skopeo list-tags "docker://$image")
+    tags=$(printf '%s\n' "$tags" | sed -nE 's/^ *"([^"]+)",?$/\1/p')
     printf '%s\n' "$tags" | report "$image" "$tag"
 done)
 [ -z "$images" ] || printf '%s\n' "$images"
 
 # GitHub answers a missing repo with a login prompt otherwise.
 export GIT_TERMINAL_PROMPT=0
-releases=$(grep -oE 'https://github\.com/[^/]+/[^/]+/releases/download/[^/]+/' build.sh |
+releases=$(grep -ohE 'https://github\.com/[^/]+/[^/]+/releases/download/[^/]+/' build.sh Dockerfile |
     sed -E 's#^https://github\.com/([^/]+/[^/]+)/releases/download/([^/]+)/$#\1 \2#' | sort -u |
 while read -r repo tag; do
     # Moving to Metamod 2.0 or SourceMod 1.13 is out of scope.

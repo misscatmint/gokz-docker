@@ -9,20 +9,19 @@ server, with quality of life plugins and modern default settings included.
 services:
   gokz:
     container_name: gokz
+    build: https://github.com/misscatmint/gokz-docker.git
     restart: unless-stopped
-    stdin_open: true
-    tty: true
-    build: ./gokz-docker
+    user: "1000:1000" # see Permissions
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
+    stdin_open: true
+    tty: true
     environment:
       MAP: kz_vnl_crimdaughter
       MAXPLAYERS: 16
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./gokz/data:/data
-      - ./gokz/etc/addons/sourcemod/configs:/data/csgo/addons/sourcemod/configs
-      - ./gokz/etc/cfg:/data/csgo/cfg
+      - ./data:/data
     ports:
       - 27015:27015/udp
       # RCON (drop 127.0.0.1: to reach it remotely)
@@ -30,9 +29,8 @@ services:
 ```
 
 ```sh
-mkdir -p gokz/data/csgo/cfg gokz/data/csgo/addons/sourcemod/configs \
-         gokz/data/csgo/maps gokz/etc/cfg gokz/etc/addons/sourcemod/configs
-sudo chown -R 1000:1000 gokz    # skip on rootless Docker, see Permissions
+mkdir -p data/csgo/maps
+sudo chown -R 1000:1000 data    # skip on rootless Docker, see Permissions
 docker compose up -d
 docker attach gokz              # server console (detach with Ctrl-P Ctrl-Q)
 ```
@@ -42,8 +40,7 @@ give a container its own timezone instead, drop the mount and set `TZ`, e.g.
 `TZ: America/Chicago`.
 
 The first start downloads the CS:GO dedicated server (~30 GB) and can take a
-while. Only the `/data` volume is required. The two config mounts are optional
-and just keep your configs in a separate, easy-to-edit place.
+while.
 
 ## Configuration
 
@@ -56,7 +53,7 @@ Everything else, like the server name, is set in the config files.
 | `MAPCMD` | `map` | Command used to load the starting map (e.g., `host_workshop_map`) |
 | `MAXPLAYERS` | `10` | Player slots |
 | `PORT` | `27015` | Game port (TCP and UDP) |
-| `SERVERCFG` | `server.cfg` | Server config file in `csgo/cfg` |
+| `SERVERCFG` | `server.cfg` | Server config file in `data/csgo/cfg` |
 | `FLAGS` | | Extra srcds command-line options (e.g., `-nomaster`) |
 | `MAPPOOL` | badservers.net map pool | GOKZ local ranks map pool (empty to skip) |
 
@@ -65,19 +62,17 @@ Everything else, like the server name, is set in the config files.
 Keys go in files on the data volume, so they never appear in your compose file
 or `docker inspect`. Each file holds just the key on one line:
 
-| Key | File (paths from the [example](#example-composeyaml)) |
+| Key | File |
 | --- | --- |
-| GOKZ global API key | `gokz/etc/cfg/sourcemod/globalapi-key.cfg` |
-| Steam Web API key (only needed to load workshop maps) | `gokz/data/csgo/webapi_authkey.txt` |
+| GOKZ global API key | `data/csgo/cfg/sourcemod/globalapi-key.cfg` |
+| Steam Web API key (only needed to load workshop maps) | `data/csgo/webapi_authkey.txt` |
 
-Without the config mount, the first one is
-`gokz/data/csgo/cfg/sourcemod/globalapi-key.cfg`. Create them with an editor
-(not `echo`, which leaves the key in your shell history), make them readable
-only by the server, and restart the container:
+Create them with an editor, make them readable only by the server, and restart
+the container:
 
 ```sh
-chmod 600 gokz/etc/cfg/sourcemod/globalapi-key.cfg gokz/data/csgo/webapi_authkey.txt
-sudo chown 1000:1000 gokz/etc/cfg/sourcemod/globalapi-key.cfg gokz/data/csgo/webapi_authkey.txt # skip on rootless Docker
+chmod 600 data/csgo/cfg/sourcemod/globalapi-key.cfg data/csgo/webapi_authkey.txt
+sudo chown 1000:1000 data/csgo/cfg/sourcemod/globalapi-key.cfg data/csgo/webapi_authkey.txt # skip on rootless Docker
 ```
 
 ### Config files
@@ -85,8 +80,8 @@ sudo chown 1000:1000 gokz/etc/cfg/sourcemod/globalapi-key.cfg gokz/data/csgo/web
 Default configs are copied in on the first start and after each update, but
 only when they don't exist yet.
 
-To turn off a bundled plugin, move it into `addons/sourcemod/plugins/disabled/`.
-It stays disabled across updates.
+To turn off a bundled plugin, move it into
+`addons/sourcemod/plugins/disabled/`. It stays disabled across updates.
 
 ## Updating
 
@@ -113,14 +108,17 @@ Example `compose.yaml`:
 ```yaml
   gokz-maps:
     container_name: gokz-maps
+    build:
+      context: https://github.com/misscatmint/gokz-docker.git
+      target: maps
     restart: unless-stopped
-    cpus: 0.5
-    build: ./gokz-docker/maps
+    user: "1000:1000" # see Permissions below
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
+    cpus: 0.5
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./gokz/data/csgo/maps:/data/csgo/maps
+      - ./data/csgo/maps:/data/csgo/maps
 ```
 
 The container only gets the maps directory, so it can't touch plugins or
@@ -142,7 +140,7 @@ docker exec gokz-maps /maps.sh verify
 ## Crash dumps
 
 When srcds crashes, the next start moves the crash dump into
-`gokz/data/crashdumps/`. Each `.dmp` has a `.dmp.txt` next to it with the map,
+`data/crashdumps/`. Each `.dmp` has a `.dmp.txt` next to it with the map,
 command line, and recent console output, which often points at the culprit.
 Nothing is uploaded anywhere.
 
@@ -152,8 +150,8 @@ To see the stack traces, use
 (`cargo install`, or prebuilt binaries from their releases):
 
 ```sh
-find gokz/data -name '*.so' -type f -exec dump_syms --store symbols {} \;
-minidump-stackwalk --symbols-path symbols gokz/data/crashdumps/<file>.dmp
+find data -name '*.so' -type f -exec dump_syms --store symbols {} \;
+minidump-stackwalk --symbols-path symbols data/crashdumps/<file>.dmp
 ```
 
 The first command reads the unwind tables out of the server's own binaries
@@ -171,7 +169,7 @@ your API keys, so don't share them publicly.
 
 Both containers run as 1000:1000 and never as root, so they can't fix
 ownership for you. Every directory you mount, and every mount point inside
-`gokz/data`, has to exist and be writable by that user before the first start
+`data`, has to exist and be writable by that user before the first start
 (the `mkdir` and `chown` in the [example](#example-composeyaml)). If Docker
 creates a missing one itself, root owns it and the server can't write to it.
 
@@ -187,7 +185,7 @@ creates a missing one itself, root owns it and the server can't write to it.
 ## GOKZ build
 
 The image bundles
-[GOKZ 3.7.1-srs2](https://github.com/misscatmint/gokz/releases/tag/3.7.1-srs2)
+[GOKZ 3.8.0-srs1](https://github.com/misscatmint/gokz/releases/tag/3.8.0-srs1)
 along with the SteamWorks and GlobalAPI versions it needs. Each one is a build
 argument, so you can swap in another release or your own fork.
 
@@ -199,7 +197,7 @@ arguments together:
 ```yaml
   gokz:
     build:
-      context: ./gokz-docker
+      context: https://github.com/misscatmint/gokz-docker.git
       args:
         GOKZ: https://github.com/misscatmint/gokz/releases/download/3.6.4-srs1/GOKZ-v3.6.4-srs1.zip
         GOKZ_SHA256: 432268d04751d42be4797970663c28c10c3edbb1f37bcbedae6bcf7e733fa838
@@ -219,7 +217,7 @@ Downgrading on an existing `/data` volume isn't guaranteed to work.
 ## Add-on zips
 
 For servers that can't run this image (e.g. hosts that only let you upload
-files), `make bundle` builds two zips in `dist/` with the same plugins and
+files), the `bundle` target builds two zips in `dist/` with the same plugins and
 configs:
 
 - `gokz-<version>.zip`: everything, configs included, for a new server.
@@ -235,15 +233,21 @@ The zips leave out Accelerator, since outside the image nothing stops it from
 uploading crash dumps. The image's start-up tasks (map lists, map pool sync)
 don't happen either.
 
-The zips are built in a small Alpine container (`bundle/Dockerfile`), so only
-Docker is needed. To bundle another GOKZ build, set the same variables as the
-[build arguments](#gokz-36x), e.g. `GOKZ=… GOKZ_SHA256=… make bundle`.
-`make clean` deletes `dist/`.
+Build them from the repository root, then keep the bundle state for the next
+release:
 
-`make bundle` also updates `bundle/files.txt` and `bundle/removed.txt`. Commit
-them with each release; the next upgrade zip's removal list comes from them.
-Before updating them, it checks that the upgrade zip has everything the full
-zip has except configs, and stops if it doesn't.
+```sh
+docker build --target bundle --output dist .
+mv dist/files.txt dist/removed.txt bundle/
+```
+
+`make bundle` runs both. To bundle another GOKZ build, pass the same [build
+arguments](#gokz-36x) (`--build-arg GOKZ=… --build-arg GOKZ_SHA256=…`, or
+`GOKZ=… GOKZ_SHA256=… make bundle`). `make clean` deletes `dist/`.
+
+Commit `bundle/files.txt` and `bundle/removed.txt` with each release. The next
+upgrade zip's removal list comes from them. The build checks that the upgrade
+zip has everything the full zip has except configs, and fails if it doesn't.
 
 ## Development
 
@@ -253,18 +257,17 @@ make build      # build both images, which checks every pinned download
                 # (takes the same GOKZ=… variables as make bundle)
 make check      # both of the above
 make bundle     # add-on zips in dist/ (see above); make clean removes them
-make outdated   # newer tags for the pinned base images and build.sh's GitHub
-                # releases (needs skopeo, git and curl)
+make outdated   # newer tags for the pinned images and GitHub releases (needs
+                # skopeo, git and curl)
 ```
 
 `make outdated` keeps Metamod and SourceMod on 1.12 and lists the downloads it
-can't check, which aren't on GitHub. Sniper is checked against Valve's latest
-stable release, since the registry also has betas. To update a GitHub download,
-run `tools/bump.sh OWNER/REPO TAG` with the first two words of its `make
-outdated` line. It points `build.sh` at the new release's file of the same name
-with the version swapped, updates its sha256 and shows how the archive's file
-list changed, so you can check the extract paths. If the file was renamed some
-other way, copy its link from the release page and run `tools/bump.sh URL`. If
+can't check, which aren't on GitHub. To update a GitHub download, run
+`tools/bump.sh OWNER/REPO TAG` with the first two words of its `make outdated`
+line. It points `build.sh` at the new release's file of the same name with the
+version swapped, updates its sha256 and shows how the archive's file list
+changed, so you can check the extract paths. If the file was renamed some other
+way, copy its link from the release page and run `tools/bump.sh URL`. If
 `build.sh` already has the URL, it only updates the sha256. Read the release
 notes, then `make build`. Update the other downloads by hand, and the GOKZ
 version mentioned above when bumping GOKZ's default.

@@ -1,7 +1,5 @@
 ignored:
-  # apt versions are frozen by the pinned base image's package lists; exact apk
-  # versions disappear from Alpine's mirrors, so pinning them breaks builds.
+  # apt versions are frozen by the snapshot the base image was built from.
   - DL3008
-  - DL3018
   # Every piped RUN ends with the command whose failure matters.
   - DL4006
