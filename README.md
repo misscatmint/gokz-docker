@@ -34,7 +34,7 @@ services:
 mkdir -p data/csgo/maps
 sudo chown -R 1000:1000 data    # skip on rootless Docker, see Permissions
 docker compose up -d
-docker attach gokz              # server console (detach with Ctrl-P Ctrl-Q)
+docker compose attach gokz      # server console (detach with Ctrl-P Ctrl-Q)
 ```
 
 Both containers use the host's timezone through the `/etc/localtime` mount. To
@@ -132,13 +132,13 @@ before starting this service.
 Run a sync right away:
 
 ```sh
-docker exec gokz-maps /maps.sh
+docker compose exec gokz-maps /maps.sh
 ```
 
 Delete maps that fail their checksum, so the next sync downloads them again:
 
 ```sh
-docker exec gokz-maps /maps.sh verify
+docker compose exec gokz-maps /maps.sh verify
 ```
 
 ## Logs
