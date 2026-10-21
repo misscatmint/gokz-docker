@@ -92,6 +92,7 @@ find "$HOME/csgo/maps/" -type f \
        -name 'skz_*.bsp' -o -name 'vnl_*.bsp' -o -name 'xc_*.bsp' \) \
     | sed 's#.*/##; s#\.bsp$##' | LC_ALL=C sort -u > "$maplist"
 cp "$maplist" "$mapcycle"
+chmod 644 "$maplist" "$mapcycle"
 mv "$maplist" "$HOME/csgo/maplist.txt"
 mv "$mapcycle" "$HOME/csgo/mapcycle.txt"
 
