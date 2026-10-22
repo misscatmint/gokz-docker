@@ -2,18 +2,23 @@
 
 set -Eeuo pipefail
 
-# Downloads to a temp file first so a failed transfer never replaces a good file.
-# A transfer stuck under 1 KB/s for a minute fails, so a stalled server can't hang startup.
+# Downloads to a temp file first so a failed transfer never replaces a good
+# file. A transfer stuck under 1 KB/s for a minute fails, so a stalled server
+# can't hang startup.
 download() {
     local url=$1 dest=$2 tmp
     mkdir -p "$(dirname "$dest")"
     tmp="$(mktemp "$dest-XXXXXX")"
     # mktemp creates the file as 600; give it the usual 644 like other files.
-    if curl -fsSL --speed-limit 1024 --speed-time 60 -o "$tmp" "$url"; then chmod 644 "$tmp"; mv "$tmp" "$dest"; else rm -f "$tmp"; fi
+    if curl -fsSL --speed-limit 1024 --speed-time 60 -o "$tmp" "$url"; then
+        chmod 644 "$tmp"; mv "$tmp" "$dest"
+    else
+        rm -f "$tmp"
+    fi
 }
 
-# --out-format prints each file rsync creates or replaces (directories end in /).
-# --checksum compares contents, since every build gives downloaded files new mtimes.
+# --out-format prints each file rsync creates or replaces (dirs end in /).
+# --checksum compares contents, since every build gives downloads new mtimes.
 rsync_opts=(-a --checksum --omit-dir-times --delay-updates
             --out-format='gokz-docker: updated %n')
 
@@ -33,10 +38,9 @@ image_files() {
 
 mkdir -p "$HOME/.steam/sdk32"
 ln -sf "$HOME/.local/share/Steam/steamcmd/linux32/steamclient.so" \
-    "$HOME/.steam/sdk32/"
+       "$HOME/.steam/sdk32/"
 
-if [[ ! -f "$HOME/csgo/bin/server.so" ]]
-then
+if [[ ! -f "$HOME/csgo/bin/server.so" ]]; then
     touch "$HOME/.install.lock"
     exec {installlock}<>"$HOME/.install.lock"
     if ! flock -x -w 30 "$installlock"; then
@@ -48,8 +52,7 @@ then
     exec {installlock}>&-
 fi
 
-if ! cmp -s "$HOME/.gokz-docker-version" /build/.version
-then
+if ! cmp -s "$HOME/.gokz-docker-version" /build/.version; then
     echo "gokz-docker: updating to $(cut -c1-12 /build/.version)"
     touch "$HOME/.update.lock"
     exec {updatelock}<>"$HOME/.update.lock"
@@ -80,36 +83,38 @@ else
     echo "gokz-docker: up to date ($(cut -c1-12 /build/.version))"
 fi
 
-# On every start, so a SERVERCFG renamed after the last update still gets the defaults.
-rsync "${rsync_opts[@]}" --ignore-existing /build/server.cfg "$HOME/csgo/cfg/$SERVERCFG"
+# On every start, so a SERVERCFG renamed after the last update still gets
+# the defaults.
+rsync "${rsync_opts[@]}" --ignore-existing /build/server.cfg \
+      "$HOME/csgo/cfg/$SERVERCFG"
 
 sed -i -E 's#^appID=.*$#appID=4465480#' "$HOME/csgo/steam.inf"
 
 maplist="$(mktemp "$HOME/csgo/maplist.txt-XXXXXX")"
 mapcycle="$(mktemp "$HOME/csgo/mapcycle.txt-XXXXXX")"
 find "$HOME/csgo/maps/" -type f \
-    \( -name 'bkz_*.bsp' -o -name 'kz_*.bsp' -o -name 'kzpro_*.bsp' -o \
-       -name 'skz_*.bsp' -o -name 'vnl_*.bsp' -o -name 'xc_*.bsp' \) \
-    | sed 's#.*/##; s#\.bsp$##' | LC_ALL=C sort -u > "$maplist"
+     \( -name 'bkz_*.bsp' -o -name 'kz_*.bsp' -o -name 'kzpro_*.bsp' -o \
+        -name 'skz_*.bsp' -o -name 'vnl_*.bsp' -o -name 'xc_*.bsp' \) |
+    sed 's#.*/##; s#\.bsp$##' | LC_ALL=C sort -u > "$maplist"
 cp "$maplist" "$mapcycle"
 chmod 644 "$maplist" "$mapcycle"
 mv "$maplist" "$HOME/csgo/maplist.txt"
 mv "$mapcycle" "$HOME/csgo/mapcycle.txt"
 
-if [[ -n "$MAPPOOL" ]]
-then
+if [[ -n "$MAPPOOL" ]]; then
     mkdir -p "$HOME/csgo/cfg/sourcemod/gokz"
-    download "$MAPPOOL" "$HOME/csgo/cfg/sourcemod/gokz/gokz-localranks-mappool.cfg"
+    download "$MAPPOOL" \
+             "$HOME/csgo/cfg/sourcemod/gokz/gokz-localranks-mappool.cfg"
 fi
 
 dlmapcfg=$HOME/csgo/cfg/sourcemod/dlmap.cfg
-if [[ "$MAPCMD" == "map" && ! -f "$HOME/csgo/maps/$MAP.bsp" && -f "$dlmapcfg" ]]
-then
-    # Same source as !dlmap; the last sm_dlmap_url line wins, as when srcds runs the file.
+if [[ "$MAPCMD" == "map" && ! -f "$HOME/csgo/maps/$MAP.bsp" &&
+      -f "$dlmapcfg" ]]; then
+    # Same source as !dlmap; the last sm_dlmap_url line wins, as when srcds
+    # runs the file.
     dlmap=$(sed -nE 's/^[[:space:]]*sm_dlmap_url[[:space:]]+"?([^"[:space:]]*).*/\1/p' \
                 "$dlmapcfg" | tail -n 1)
-    if [[ -n $dlmap ]]
-    then
+    if [[ -n $dlmap ]]; then
         download "$dlmap/$MAP.bsp" "$HOME/csgo/maps/$MAP.bsp"
         download "$dlmap/$MAP.nav" "$HOME/csgo/maps/$MAP.nav"
     fi
