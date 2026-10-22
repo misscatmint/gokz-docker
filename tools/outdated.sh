@@ -1,8 +1,8 @@
 #!/bin/sh
 # Lists the images pinned in the Dockerfile and Makefile and the GitHub releases
-# pinned in build.sh and the Dockerfile that have a newer tag of the same shape
-# (e.g. v2.15.1 is only compared with other vx.y.z tags). Needs skopeo, git and
-# curl.
+# pinned in server/build.sh and the Dockerfile that have a newer tag of the same
+# shape (e.g. v2.15.1 is only compared with other vx.y.z tags). Needs skopeo,
+# git and curl.
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -28,7 +28,7 @@ done)
 
 # GitHub answers a missing repo with a login prompt otherwise.
 export GIT_TERMINAL_PROMPT=0
-releases=$(grep -ohE 'https://github\.com/[^/]+/[^/]+/releases/download/[^/]+/' build.sh Dockerfile |
+releases=$(grep -ohE 'https://github\.com/[^/]+/[^/]+/releases/download/[^/]+/' server/build.sh Dockerfile |
     sed -E 's#^https://github\.com/([^/]+/[^/]+)/releases/download/([^/]+)/$#\1 \2#' | sort -u |
 while read -r repo tag; do
     # Moving to Metamod 2.0 or SourceMod 1.13 is out of scope.
@@ -41,5 +41,5 @@ while read -r repo tag; do
 done)
 [ -z "$releases" ] || printf '%s\n' "$releases"
 [ -n "$images$releases" ] || echo "Everything checked is current."
-grep -oE "https://[^\"'} ]+" build.sh |
+grep -oE "https://[^\"'} ]+" server/build.sh |
     grep -vE '^https://github\.com/[^/]+/[^/]+/releases/download/' | sed 's/^/not checked: /'

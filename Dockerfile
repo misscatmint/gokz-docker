@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl unzip zip && \
     rm -rf /var/lib/apt/lists/*
 ARG GOKZ GOKZ_SHA256 STEAMWORKS STEAMWORKS_SHA256 GLOBALAPI GLOBALAPI_SHA256
-RUN --mount=type=bind,source=build.sh,target=/build.sh \
-    --mount=type=bind,source=overlay,target=/overlay /build.sh /build
+RUN --mount=type=bind,source=server/build.sh,target=/build.sh \
+    --mount=type=bind,source=server/overlay,target=/overlay /build.sh /build
 
 FROM build AS bundler
 RUN --mount=type=bind,source=tools,target=/tools \
@@ -61,8 +61,8 @@ RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
     rm -rf /var/lib/apt/lists/* && \
     ln -s /usr/games/steamcmd /usr/bin/steamcmd
 COPY --from=build /build /build
-COPY --chmod=755 check.sh entrypoint.sh run.sh /
-COPY --chmod=644 logrotate.conf /
+COPY --chmod=755 server/check.sh server/entrypoint.sh server/run.sh /
+COPY --chmod=644 server/logrotate.conf /
 USER 1000:1000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5m \

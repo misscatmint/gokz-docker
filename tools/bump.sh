@@ -1,10 +1,10 @@
 #!/bin/bash
 # tools/bump.sh URL
 # tools/bump.sh OWNER/REPO TAG
-# Points build.sh's download from the same GitHub repo at URL (a release asset,
-# copied from the release page) or at TAG's asset of the same name with the
-# version swapped, updates its sha256, and shows how the archive's file list
-# changed. If build.sh already uses that URL, only its sha256 is updated.
+# Points server/build.sh's download from the same GitHub repo at URL (a release
+# asset, copied from the release page) or at TAG's asset of the same name with
+# the version swapped, updates its sha256, and shows how the archive's file list
+# changed. If server/build.sh already uses that URL, only its sha256 is updated.
 
 set -Eeuo pipefail
 cd "$(dirname "$0")/.."
@@ -19,15 +19,15 @@ else
     exit 1
 fi
 
-matches=$(grep -nF "https://github.com/$repo/releases/download/" build.sh || true)
+matches=$(grep -nF "https://github.com/$repo/releases/download/" server/build.sh || true)
 case $matches in
-    '')      echo "bump.sh: no $repo download in build.sh" >&2; exit 1 ;;
-    *$'\n'*) echo "bump.sh: several $repo downloads in build.sh" >&2; exit 1 ;;
+    '')      echo "bump.sh: no $repo download in server/build.sh" >&2; exit 1 ;;
+    *$'\n'*) echo "bump.sh: several $repo downloads in server/build.sh" >&2; exit 1 ;;
 esac
 lineno=${matches%%:*}
 old=$(grep -oE "https://github\.com/[^ \"'}]+" <<<"$matches")
 oldtag=$(sed -E 's#.*/releases/download/([^/]+)/.*#\1#' <<<"$old")
-oldsha=$(sed -n "$((lineno + 1))p" build.sh | grep -oE '[0-9a-f]{64}')
+oldsha=$(sed -n "$((lineno + 1))p" server/build.sh | grep -oE '[0-9a-f]{64}')
 if [[ -z $new ]]; then
     oldver=${oldtag#v} newver=${newtag#v} file=${old##*/}
     file=${file//"$oldver"/"$newver"}
@@ -44,9 +44,9 @@ curl -fsSL -o "$tmp/new" "$new" || {
 }
 newsha=$(sha256sum "$tmp/new" | cut -d' ' -f1)
 if [[ $old == "$new" ]]; then
-    [[ $newsha != "$oldsha" ]] || { echo "bump.sh: build.sh already uses $new" >&2; exit 1; }
-    sed -i "$((lineno + 1))s#$oldsha#$newsha#" build.sh
-    echo "build.sh:$((lineno + 1)) $repo $newtag sha256 $oldsha -> $newsha"
+    [[ $newsha != "$oldsha" ]] || { echo "bump.sh: server/build.sh already uses $new" >&2; exit 1; }
+    sed -i "$((lineno + 1))s#$oldsha#$newsha#" server/build.sh
+    echo "server/build.sh:$((lineno + 1)) $repo $newtag sha256 $oldsha -> $newsha"
     exit
 fi
 curl -fsSL -o "$tmp/old" "$old"
@@ -59,8 +59,8 @@ list() {
         sed "s/${2//./\\.}/VERSION/g" | LC_ALL=C sort
 }
 
-sed -i "${lineno}s#$old#$new#; $((lineno + 1))s#$oldsha#$newsha#" build.sh
-echo "build.sh:$lineno $repo $oldtag -> $newtag"
+sed -i "${lineno}s#$old#$new#; $((lineno + 1))s#$oldsha#$newsha#" server/build.sh
+echo "server/build.sh:$lineno $repo $oldtag -> $newtag"
 if diff <(list "$tmp/old" "$oldtag") <(list "$tmp/new" "$newtag") > "$tmp/diff"; then
     echo "Archive layout unchanged."
 else

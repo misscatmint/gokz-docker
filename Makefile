@@ -10,7 +10,7 @@ COMPONENTS := GOKZ GOKZ_SHA256 STEAMWORKS STEAMWORKS_SHA256 GLOBALAPI GLOBALAPI_
 check: lint build
 
 lint:
-	$(LINT) $(SHELLCHECK) *.sh maps/*.sh tools/*.sh
+	$(LINT) $(SHELLCHECK) server/*.sh maps/*.sh tools/*.sh
 	$(LINT) --entrypoint /bin/hadolint $(HADOLINT) Dockerfile
 
 # Downloads always rerun, since a cached layer would hide a dead link.
