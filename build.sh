@@ -136,9 +136,9 @@ unpack https://github.com/BadServersNet/sm-zone-stopwatch/releases/download/v1.0
 unpack https://github.com/zer0k-z/more-stats/releases/download/v3.1.2/more-stats.zip \
        79721f8e511a73d636dda5b093599b2928022e74b81e9cf36634bc35502da060 \
     'addons/sourcemod/plugins/*'
-fetch addons/sourcemod/plugins/showtriggers.smx \
-      'https://www.sourcemod.net/vbcompiler.php?file_id=158717' \
-      832f15ca3fe1a8ad14640c9f424b288077bb43548f36b28f52e9d68ccb62eaeb
+unpack https://github.com/misscatmint/sm-showtriggers/releases/download/v1.0.0/sm-showtriggers-1.0.0.zip \
+       8924b13a2903010fe7df30bad31fae3eeff2c7c8097ca8abed0762f863a44f14 \
+    'addons/sourcemod/plugins/*'
 unpack https://github.com/GAMMACASE/NightVision/releases/download/1.0.1/nightvision_1.0.1.zip \
        681ce9da07af14823ad56d2d72c8954920e1c2c9faee62015b10e9219a205d2c \
     'addons/sourcemod/configs/*' 'addons/sourcemod/plugins/*' \
