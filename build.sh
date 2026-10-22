@@ -92,9 +92,9 @@ fetch addons/sourcemod/plugins/fixcrash_mapchange.smx \
 fetch addons/sourcemod/plugins/itemcrashfix.smx \
       https://github.com/misscatmint/itemcrashfix/releases/download/0.1/itemcrashfix.smx \
       7d93dde1a4d381b04352416bd06612780666cc22ace18ef160a73ec8cc0a805c
-fetch addons/sourcemod/plugins/CommandAliases.smx \
-      https://bitbucket.org/Sikarii/sm-commandaliases/downloads/CommandAliases-latest.smx \
-      92945d02eb423cb6cd9f7f845d38566cb19ecce29c71439fd48bbd2c17b44a4d
+unpack https://github.com/misscatmint/sm-commandaliases/releases/download/v3.0.0/sm-commandaliases-3.0.0.zip \
+       d6f08001c31ac2d1f238c331a544c2ae93dbe9dec2eb89e65d96ad85a8153837 \
+    'addons/sourcemod/plugins/*'
 unpack -a "$STEAMWORKS" \
           "$STEAMWORKS_SHA256" \
     addons/sourcemod/extensions
