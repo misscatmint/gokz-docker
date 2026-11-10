@@ -78,12 +78,12 @@ unpack https://github.com/zer0k-z/csgo-multi-appid/releases/download/v1.0.2/csgo
        a7b8f0073328d592481eb48f16e9e1479fac66200e9eda67b4e0ec9dce8ecc39
 unpack https://github.com/misscatmint/csgo-steam-reconnect/releases/download/v1.0.0/csgo-steam-reconnect-v1.0.0-linux.zip \
        04bfbf9d3524bdeb4410ce475bb60b0eb57baf97b6545cc00a0ce5d9a5faa157
-unpack https://github.com/alliedmodders/metamod-source/releases/download/1.12.0.1228/mmsource-1.12.0-git1228-linux.tar.gz \
-       29f60bb40154fb4d9d0020ee35347c8359eeaf493dc4fdd7182873cf51f83f47
-unpack https://github.com/misscatmint/mm-autorestart/releases/download/3.0.2/autorestart-linux-mm-1.12.zip \
-       f0f2ab84910a1f6a6236ab30aa7066a961652be28dfd70f932556494b017641e
-unpack https://github.com/alliedmodders/sourcemod/releases/download/1.12.0.7255/sourcemod-1.12.0-git7255-linux.tar.gz \
-       02be752ddc25d344a379800df9395a2847ab85b71acea9167fdca8163010d5b9 \
+unpack https://github.com/alliedmodders/metamod-source/releases/download/1.12.0.1229/mmsource-1.12.0-git1229-linux.tar.gz \
+       df2f8723741d90aea730e06103e57844bac970225be9fd4137ed1d2b753bedb2
+unpack https://github.com/misscatmint/mm-autorestart/releases/download/4.0.0/autorestart-linux-mm-1.12.zip \
+       1caf50489958e6613b5bf103636bcd392ef92f85194abf862dc8501b6c68a194
+unpack https://github.com/alliedmodders/sourcemod/releases/download/1.12.0.7260/sourcemod-1.12.0-git7260-linux.tar.gz \
+       b01719e6143bc7d5bb63aae8086d031574da6ef838f041ba4b8ab72c8c75b888 \
        --exclude=addons/sourcemod/scripting
 unpack -s linux https://builds.limetech.io/files/accelerator-2.6.0-git166-a4dbe6f-linux.zip \
                 01bd4a02b92ce129183e63a415dae45ca2555db23e2429fdfc99462364a7142e \
