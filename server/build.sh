@@ -7,8 +7,8 @@ set -Eeuo pipefail
 
 # Swappable with build args or environment variables (see README); empty
 # means default.
-: "${GOKZ:=https://github.com/misscatmint/gokz/releases/download/3.8.0-srs1/GOKZ-v3.8.0-srs1.zip}"
-: "${GOKZ_SHA256:=b39ceb2aab1ae6443c491253315e81c4c0100df8a8df0fd23614d5ad99255a70}"
+: "${GOKZ:=https://github.com/misscatmint/gokz/releases/download/3.8.0-srs2/GOKZ-v3.8.0-srs2.zip}"
+: "${GOKZ_SHA256:=303d6f7acfb61a91fdf3f3753f096695a98c2118fb1aee0038434d563564f930}"
 : "${STEAMWORKS:=https://github.com/alliedmodders/SM-SteamWorks/releases/download/v1.2.167/SteamWorks-1.2.167-sm1.12-linux.tar.gz}"
 : "${STEAMWORKS_SHA256:=af5d01b170b866f9e377d3739bded46138044cc54fb7c381ba77d34e07bb783c}"
 : "${GLOBALAPI:=https://github.com/misscatmint/csgo-sm-globalapi/releases/download/v2.1.0/GlobalAPI-v2.1.0.zip}"
