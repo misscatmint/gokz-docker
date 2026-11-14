@@ -127,9 +127,9 @@ unpack https://github.com/FemboyKZ/movementhud/releases/download/v3.0.11/movemen
 fetch addons/sourcemod/plugins/showpos.smx \
       https://github.com/zer0k-z/showpos/releases/download/v0.0.2/showpos.smx \
       591b33c829473a69a6599af1f25e3914c55be3bc6e153548e019d2d9cfb28185
-unpack https://github.com/BadServersNet/sm-distbug/releases/download/v2.3.0/distbugfix-v2.3.0.tar.gz \
-       c67698c9396183f734dbd8df001a0ce312b70bd75c582c2f036575b5394837c5 \
-       ./addons/sourcemod/plugins
+unpack https://github.com/misscatmint/sm-distbug/releases/download/v3.0.0/sm-distbug-3.0.0.zip \
+       fbfc520b0cd38c3919fd7702741a6e654d176f7006fa518ded337da22f284173 \
+       'addons/sourcemod/plugins/*'
 unpack https://github.com/BadServersNet/sm-zone-stopwatch/releases/download/v1.0.3/zone-stopwatch-v1.0.3.tar.gz \
        8cde796a90b191f8a953bfe2561cfd1e34b791e55f27796aad990218e3ed58b5 \
        ./addons/sourcemod/plugins
